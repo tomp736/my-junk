@@ -12,7 +12,7 @@
   "currency": "PLN",
   "condition": "good",
   "category": "kitchen",
-  "status": "available",
+  "status": "listed",
   "images": [
     "images/haws-air-fryer-1.jpg",
     "images/haws-air-fryer-2.png",
@@ -23,5 +23,7 @@
   "location": "Warszawa",
   "tags": [
     "kitchen"
-  ]
+  ],
+  "listingUrl": "https://www.olx.pl/d/oferta/frytkownica-beztluszczowa-emerio-afry20200-haws-smart-CID99-ID183Och.html?bs=olx_pro_listing",
+  "listedDate": "2025-10-29T10:56:12.570Z"
 }
