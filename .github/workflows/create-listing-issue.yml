@@ -135,8 +135,9 @@ jobs:
             2. **IMPORTANT:** Include this marker in the listing description: \`#!#${itemId}#!#\`
                - You can put it anywhere in the description (it can be hidden at the end)
                - This marker is used to verify the listing
-            3. Once the listing is live, close this issue with a comment containing the listing URL
-            4. The GitHub Action will automatically verify the listing by checking for the marker
+            3. Once the listing is live, add a comment to this issue with the listing URL
+            4. The GitHub Action will automatically verify the listing
+            5. This issue will remain open until the validation PR is merged
 
             ---
 
@@ -144,8 +145,9 @@ jobs:
             2. **WAŻNE:** Umieść ten znacznik w opisie ogłoszenia: \`#!#${itemId}#!#\`
                - Możesz go umieścić w dowolnym miejscu opisu (może być ukryty na końcu)
                - Ten znacznik służy do weryfikacji ogłoszenia
-            3. Po opublikowaniu ogłoszenia, zamknij to zgłoszenie komentarzem zawierającym URL ogłoszenia
-            4. GitHub Action automatycznie zweryfikuje ogłoszenie sprawdzając obecność znacznika
+            3. Po opublikowaniu ogłoszenia, dodaj komentarz do tego zgłoszenia z URL ogłoszenia
+            4. GitHub Action automatycznie zweryfikuje ogłoszenie
+            5. To zgłoszenie pozostanie otwarte do momentu zatwierdzenia PR walidacyjnego
 
             ### Supported Marketplaces / Obsługiwane Platformy
 
@@ -156,15 +158,18 @@ jobs:
 
             ### Comment Format / Format Komentarza
 
-            When closing this issue, use this format:
+            Add a comment with this format:
             \`\`\`
             Listing URL: https://example.com/listing/12345
             \`\`\`
 
-            Zamykając to zgłoszenie, użyj tego formatu:
+            Dodaj komentarz w tym formacie:
             \`\`\`
             Listing URL: https://example.com/listing/12345
             \`\`\`
+
+            **Note:** Don't close the issue - it will close automatically after validation!
+            **Uwaga:** Nie zamykaj zgłoszenia - zamknie się automatycznie po walidacji!
             `
             });
 

@@ -49,22 +49,25 @@ Właściciel repozytorium (lub przypisana osoba) musi:
 Once the listing is live:
 1. Add a comment to the listing issue with the URL
 2. Use the format: `Listing URL: https://...`
-3. Close the issue
+3. The validation will start automatically - no need to close the issue!
 
 Po opublikowaniu ogłoszenia:
 1. Dodaj komentarz do zgłoszenia z URL
 2. Użyj formatu: `Listing URL: https://...`
-3. Zamknij zgłoszenie
+3. Walidacja rozpocznie się automatycznie - nie musisz zamykać zgłoszenia!
 
 **Example comment / Przykład komentarza:**
 ```
 Listing URL: https://www.olx.pl/d/oferta/tefal-blender-xyz123
 ```
 
+**Important:** The issue will remain open until the validation PR is merged.
+**Ważne:** Zgłoszenie pozostanie otwarte do momentu zatwierdzenia PR z walidacją.
+
 ### 4. Automatic Validation / Automatyczna Walidacja
 
-When the issue is closed, a GitHub Action automatically:
-1. Extracts the listing URL from the comment
+When you add a comment with "Listing URL:", a GitHub Action automatically:
+1. Extracts the listing URL from your comment
 2. Fetches the listing page
 3. Verifies that the item ID marker (`#!#item-id#!#`) appears in the listing
 4. Updates the item JSON with:
@@ -73,7 +76,7 @@ When the issue is closed, a GitHub Action automatically:
    - `status`: Changes from "available" to "listed"
 5. Creates a PR with these updates
 
-Gdy zgłoszenie jest zamykane, GitHub Action automatycznie:
+Gdy dodasz komentarz z "Listing URL:", GitHub Action automatycznie:
 1. Wyciąga URL ogłoszenia z komentarza
 2. Pobiera stronę ogłoszenia
 3. Weryfikuje, czy znacznik ID przedmiotu (`#!#id-przedmiotu#!#`) pojawia się w ogłoszeniu
@@ -89,23 +92,37 @@ If validation succeeds:
 - The issue gets a "listing-verified" label
 - A PR is created to update the item
 - A success comment is posted on the issue
+- **The issue remains open** until the PR is merged
 
 Jeśli walidacja się powiedzie:
 - Zgłoszenie otrzymuje etykietę "listing-verified"
 - Tworzony jest PR z aktualizacją przedmiotu
 - Komentarz z potwierdzeniem jest dodawany do zgłoszenia
+- **Zgłoszenie pozostaje otwarte** do momentu zatwierdzenia PR
 
-### 6. Validation Failure / Niepowodzenie Walidacji
+### 6. PR Merge and Issue Closure / Zatwierdzenie PR i Zamknięcie Zgłoszenia
 
-If validation fails (URL inaccessible or item ID not found):
-- The issue is automatically reopened
+When the validation PR is merged:
+- A final success comment is added to the issue
+- The issue is automatically closed
+- The item is now fully listed and tracked!
+
+Gdy PR walidacyjny zostaje zatwierdzony:
+- Ostatni komentarz z potwierdzeniem jest dodawany do zgłoszenia
+- Zgłoszenie jest automatycznie zamykane
+- Przedmiot jest teraz w pełni wystawiony i śledzony!
+
+### 7. Validation Failure / Niepowodzenie Walidacji
+
+If validation fails (URL inaccessible or item ID marker not found):
 - An error comment explains what went wrong
-- You can fix the issue and try again
+- The issue remains open
+- You can add another comment with the corrected URL to try again
 
-Jeśli walidacja się nie powiedzie (URL niedostępny lub ID przedmiotu nie znaleziono):
-- Zgłoszenie jest automatycznie ponownie otwierane
+Jeśli walidacja się nie powiedzie (URL niedostępny lub znacznik ID przedmiotu nie znaleziony):
 - Komentarz z błędem wyjaśnia, co poszło nie tak
-- Możesz naprawić problem i spróbować ponownie
+- Zgłoszenie pozostaje otwarte
+- Możesz dodać kolejny komentarz z poprawionym URL aby spróbować ponownie
 
 ## Item Status Values / Wartości Statusu Przedmiotu
 
@@ -167,8 +184,8 @@ Walidacja działa z każdym URL platformy sprzedażowej, w tym:
 
 ## Example Full Workflow / Przykład Pełnego Przepływu
 
-1. PR merged: Item `tefal-blender-001` added to repository
-2. Issue #5 created: "Create listing for: Tefal Blender"
+1. PR #3 merged: Item `tefal-blender-001` added to repository
+2. Issue #5 auto-created: "Create listing for: Tefal Blender" (status: open, label: listing-needed)
 3. Owner creates listing on OLX with description:
    ```
    Sprzedam blender Tefal w doskonałym stanie.
@@ -176,10 +193,17 @@ Walidacja działa z każdym URL platformy sprzedażowej, w tym:
 
    #!#tefal-blender-001#!#
    ```
-4. Owner comments: `Listing URL: https://www.olx.pl/d/oferta/tefal-blender-xyz`
-5. Owner closes issue #5
-6. GitHub Action validates the listing (finds marker `#!#tefal-blender-001#!#`)
-7. PR #6 created: "Add listing URL for tefal-blender-001"
-8. PR merged: Item JSON updated with listing URL and status "listed"
+4. Owner adds comment to issue #5: `Listing URL: https://www.olx.pl/d/oferta/tefal-blender-xyz`
+5. GitHub Action automatically validates the listing (finds marker `#!#tefal-blender-001#!#`)
+6. Issue #5 gets "listing-verified" label, remains open
+7. PR #6 auto-created: "Add listing URL for tefal-blender-001"
+8. Owner reviews and merges PR #6
+9. Issue #5 automatically closed with success message
+10. Item JSON now has listing URL and status "listed"
 
 **Note:** The marker can be hidden at the end of your description or placed anywhere. It will be found by the validation system.
+
+**Key Points:**
+- Issue stays open from step 2 until step 9
+- Validation happens automatically when you comment (no need to close issue)
+- Issue only closes after the validation PR is merged

@@ -1,12 +1,14 @@
 name: Validate Listing URL
 
 on:
-  issues:
-    types: [closed]
+  issue_comment:
+    types: [created]
 
 jobs:
   validate-listing:
-    if: contains(github.event.issue.labels.*.name, 'listing-needed')
+    if: |
+      contains(toJSON(github.event.issue.labels.*.name), 'listing-needed') &&
+      contains(github.event.comment.body, 'Listing URL:')
     runs-on: ubuntu-latest
 
     steps:
@@ -28,37 +30,18 @@ jobs:
         with:
           github-token: ${{ steps.generate-token.outputs.token }}
           script: |
-            // Get all comments on the issue
-            const { data: comments } = await github.rest.issues.listComments({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.issue.number
-            });
+            // Extract listing URL from the comment that triggered this workflow
+            const commentBody = context.payload.comment.body;
 
-            // Look for listing URL in comments (especially the closing comment)
-            let listingUrl = null;
+            // Look for "Listing URL: " pattern
+            const urlMatch = commentBody.match(/Listing URL:\s*(https?:\/\/[^\s]+)/i);
 
-            // Check comments in reverse order (most recent first)
-            for (const comment of comments.reverse()) {
-              // Look for "Listing URL: " pattern
-              const urlMatch = comment.body.match(/Listing URL:\s*(https?:\/\/[^\s]+)/i);
-              if (urlMatch) {
-                listingUrl = urlMatch[1];
-                break;
-              }
-
-              // Also check for plain URLs
-              const plainUrlMatch = comment.body.match(/(https?:\/\/[^\s]+)/);
-              if (plainUrlMatch) {
-                listingUrl = plainUrlMatch[1];
-                break;
-              }
-            }
-
-            if (!listingUrl) {
-              core.setFailed('No listing URL found in comments');
+            if (!urlMatch) {
+              core.setFailed('No listing URL found in comment. Please use format: Listing URL: https://...');
               return;
             }
+
+            const listingUrl = urlMatch[1];
 
             // Extract item ID from issue title or body
             const titleMatch = context.payload.issue.title.match(/\`([^`]+)\`/);
@@ -207,9 +190,12 @@ jobs:
             Ogłoszenie zostało pomyślnie zweryfikowane!
 
             ✓ Listing is accessible / Ogłoszenie jest dostępne
-            ✓ Item ID found in listing / ID przedmiotu znaleziono w ogłoszeniu
+            ✓ Item ID marker found in listing / Znacznik ID przedmiotu znaleziono w ogłoszeniu
 
             A pull request has been created to update the item: #${prNumber}
+
+            **This issue will automatically close when the PR is merged.**
+            **To zgłoszenie zostanie automatycznie zamknięte po zatwierdzeniu PR.**
 
             Thank you! / Dziękujemy!`
             });
@@ -238,17 +224,9 @@ jobs:
             Nie udało się zweryfikować ogłoszenia. Sprawdź:
 
             - The listing URL is correct and accessible / URL ogłoszenia jest poprawny i dostępny
-            - The item ID is included in the listing description / ID przedmiotu jest umieszczony w opisie ogłoszenia
+            - The item ID marker \`#!#item-id#!#\` is included in the listing / Znacznik ID przedmiotu \`#!#id-przedmiotu#!#\` jest umieszczony w ogłoszeniu
             - The listing is active / Ogłoszenie jest aktywne
 
-            Please add a comment with the correct listing URL and re-close this issue.
-            Dodaj komentarz z poprawnym URL ogłoszenia i ponownie zamknij to zgłoszenie.`
-            });
-
-            // Reopen the issue
-            await github.rest.issues.update({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.issue.number,
-              state: 'open'
+            Please add another comment with the correct listing URL to try again.
+            Dodaj kolejny komentarz z poprawnym URL ogłoszenia aby spróbować ponownie.`
             });
