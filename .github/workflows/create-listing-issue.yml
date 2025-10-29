@@ -69,13 +69,19 @@ jobs:
 
             console.log(`Extracted item: ${item.id}`);
 
+            // Convert relative image paths to absolute GitHub URLs
+            const images = (item.images || []).map(img => 
+              `https://raw.githubusercontent.com/${context.repo.owner}/${context.repo.repo}/main/${img}`
+            );
+
             return JSON.stringify({
               found: true,
               itemId: item.id,
               titleEn: item.title.en,
               titlePl: item.title.pl,
               descriptionEn: item.description.en,
-              descriptionPl: item.description.pl
+              descriptionPl: item.description.pl,
+              images
             });
 
       - name: Parse extraction result
@@ -120,6 +126,11 @@ jobs:
             echo "descriptionPl<<EOF" >> $GITHUB_OUTPUT
             printf '%s\n' "$DESCRIPTION_PL" >> $GITHUB_OUTPUT
             echo "EOF" >> $GITHUB_OUTPUT
+
+            # Extract and write images array
+            echo "images<<EOF" >> $GITHUB_OUTPUT
+            echo "$RESULT" | jq -r '.images[]' >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
           fi
 
       - name: Create listing issue
@@ -134,6 +145,7 @@ jobs:
             const titlePl = `${{ steps.parse-result.outputs.titlePl }}`;
             const descriptionEn = `${{ steps.parse-result.outputs.descriptionEn }}`;
             const descriptionPl = `${{ steps.parse-result.outputs.descriptionPl }}`;
+            const images = `${{ steps.parse-result.outputs.images }}`.split('\n').filter(Boolean);
 
             // Ensure all inputs are properly escaped for the issue body
             const issue = await github.rest.issues.create({
@@ -159,8 +171,10 @@ jobs:
             **Description (PL):**
             ${descriptionPl}
 
-            ### Instructions / Instrukcje
+            ### Images / Zdjęcia
+            ${images.map(img => `![Product Image](${img})`).join('\n')}
 
+            ### Instructions / Instrukcje            
             1. Create a listing on your marketplace (OLX, Allegro, Facebook, etc.)
             2. **IMPORTANT:** Include this marker in the listing description: \`#!#${itemId}#!#\`
                - You can put it anywhere in the description (it can be hidden at the end)
