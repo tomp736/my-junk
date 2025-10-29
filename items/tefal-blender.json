@@ -12,7 +12,7 @@
   "currency": "PLN",
   "condition": "good",
   "category": "kitchen",
-  "status": "available",
+  "status": "listed",
   "images": [
     "images/tefal-blender-1.jpg",
     "images/tefal-blender-2.jpg",
@@ -23,5 +23,7 @@
   "location": "Warszawa",
   "tags": [
     "kitchen"
-  ]
+  ],
+  "listingUrl": "https://www.olx.pl/d/oferta/blender-kielichowy-tefal-perfect-mix-CID99-ID183MBz.html?bs=olx_pro_listing",
+  "listedDate": "2025-10-29T10:57:44.194Z"
 }
