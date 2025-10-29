@@ -1,0 +1,38 @@
+{
+  "id": "server-ram-ddr3-mix",
+  "title": {
+    "en": "Server RAM DDR3 ECC - HP/Samsung/Hynix 4GB-8GB modules",
+    "pl": "Pamięć serwerowa DDR3 ECC - HP/Samsung/Hynix moduły 4GB-8GB"
+  },
+  "description": {
+    "en": "Professional server memory modules from HP, Samsung, and Hynix. Mix of DDR3 PC3-10600R (1333MHz) ECC Registered (RDIMM) and Load Reduced (LRDIMM) modules. \n\nAvailable: 30+ modules total\n- 4GB modules: 30 PLN each\n- 8GB modules: 45 PLN each\n\nBULK DISCOUNT: Take all modules for 1100 PLN (normally 1300+ PLN)\n\nIdeal for:\n- Server upgrades\n- Homelab projects  \n- Workstations requiring ECC memory\n\nAll modules pulled from working enterprise servers. Tested and fully functional. Can sell individually or as complete lot.",
+    "pl": "Profesjonalne moduły pamięci serwerowej HP, Samsung i Hynix. Mix pamięci DDR3 PC3-10600R (1333MHz) ECC Registered (RDIMM) i Load Reduced (LRDIMM).\n\nDostępne: 30+ modułów łącznie\n- Moduły 4GB: 30 PLN/szt\n- Moduły 8GB: 45 PLN/szt\n\nRABAT HURTOWY: Wszystkie moduły za 1100 PLN (normalnie 1300+ PLN)\n\nIdealne do:\n- Upgradu serwerów\n- Projektów homelab\n- Stacji roboczych wymagających pamięci ECC\n\nWszystkie moduły pochodzą z działających serwerów enterprise. Przetestowane i w pełni sprawne. Sprzedaż pojedynczo lub całość."
+  },
+  "price": 1100,
+  "currency": "PLN",
+  "condition": "good",
+  "category": "electronics, computer-components",
+  "status": "available",
+  "images": [
+    "images/server-ram-ddr3-mix-1.jpg",
+    "images/server-ram-ddr3-mix-2.jpg",
+    "images/server-ram-ddr3-mix-3.jpg",
+    "images/server-ram-ddr3-mix-4.jpg",
+    "images/server-ram-ddr3-mix-5.jpg",
+    "images/server-ram-ddr3-mix-6.jpg",
+    "images/server-ram-ddr3-mix-7.jpg"
+  ],
+  "datePosted": "2025-10-29T14:16:27.954Z",
+  "location": "Warsaw",
+  "tags": [
+    "server",
+    "RAM",
+    "DDR3",
+    "ECC",
+    "HP",
+    "Samsung",
+    "Hynix",
+    "memory",
+    "bulk"
+  ]
+}
