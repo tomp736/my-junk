@@ -7,7 +7,7 @@ on:
 
 jobs:
   create-listing-issue:
-    if: github.event.pull_request.merged == true && contains(github.event.pull_request.labels.*.name, 'new-item')
+    if: github.event.pull_request.merged == true && contains(toJSON(github.event.pull_request.labels.*.name), 'new-item')
     runs-on: ubuntu-latest
 
     steps:
@@ -37,7 +37,7 @@ jobs:
             const { data: files } = await github.rest.pulls.listFiles({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              pull_request_number: context.payload.pull_request.number
+              pull_number: context.payload.pull_request.number
             });
 
             // Find the item JSON file
