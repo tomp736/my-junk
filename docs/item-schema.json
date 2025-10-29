@@ -61,7 +61,7 @@
     },
     "status": {
       "type": "string",
-      "enum": ["available", "pending", "sold", "removed"],
+      "enum": ["available", "listed", "pending", "sold", "removed"],
       "description": "Current status of the listing"
     },
     "images": {
@@ -86,6 +86,16 @@
       "items": {
         "type": "string"
       }
+    },
+    "listingUrl": {
+      "type": "string",
+      "format": "uri",
+      "description": "URL to the marketplace listing (OLX, Allegro, Facebook, etc.)"
+    },
+    "listedDate": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Date when the item was listed on the marketplace"
     }
   }
 }

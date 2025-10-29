@@ -1,0 +1,253 @@
+name: Validate Listing URL
+
+on:
+  issues:
+    types: [closed]
+
+jobs:
+  validate-listing:
+    if: contains(github.event.issue.labels.*.name, 'listing-needed')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Generate GitHub App Token
+        id: generate-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ vars.GH_APP_AUTOMATION_APP_ID }}
+          private-key: ${{ secrets.GH_APP_AUTOMATION_APP_PRIVATE_KEY }}
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ steps.generate-token.outputs.token }}
+
+      - name: Extract listing URL and item ID
+        id: extract-info
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ steps.generate-token.outputs.token }}
+          script: |
+            // Get all comments on the issue
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number
+            });
+
+            // Look for listing URL in comments (especially the closing comment)
+            let listingUrl = null;
+
+            // Check comments in reverse order (most recent first)
+            for (const comment of comments.reverse()) {
+              // Look for "Listing URL: " pattern
+              const urlMatch = comment.body.match(/Listing URL:\s*(https?:\/\/[^\s]+)/i);
+              if (urlMatch) {
+                listingUrl = urlMatch[1];
+                break;
+              }
+
+              // Also check for plain URLs
+              const plainUrlMatch = comment.body.match(/(https?:\/\/[^\s]+)/);
+              if (plainUrlMatch) {
+                listingUrl = plainUrlMatch[1];
+                break;
+              }
+            }
+
+            if (!listingUrl) {
+              core.setFailed('No listing URL found in comments');
+              return;
+            }
+
+            // Extract item ID from issue title or body
+            const titleMatch = context.payload.issue.title.match(/\`([^`]+)\`/);
+            const bodyMatch = context.payload.issue.body.match(/\*\*Item ID[^:]*:\*\*\s*`([^`]+)`/);
+            const itemId = titleMatch?.[1] || bodyMatch?.[1];
+
+            if (!itemId) {
+              core.setFailed('Could not extract item ID from issue');
+              return;
+            }
+
+            console.log(`Found listing URL: ${listingUrl}`);
+            console.log(`Item ID: ${itemId}`);
+
+            core.setOutput('listingUrl', listingUrl);
+            core.setOutput('itemId', itemId);
+
+      - name: Fetch and validate listing
+        id: validate
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ steps.generate-token.outputs.token }}
+          script: |
+            const listingUrl = '${{ steps.extract-info.outputs.listingUrl }}';
+            const itemId = '${{ steps.extract-info.outputs.itemId }}';
+
+            if (!listingUrl || !itemId) {
+              core.setFailed('Missing listing URL or item ID');
+              return;
+            }
+
+            // Fetch the listing page
+            let pageContent = '';
+            let isActive = false;
+
+            try {
+              const response = await fetch(listingUrl, {
+                headers: {
+                  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+                }
+              });
+
+              if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+              }
+
+              pageContent = await response.text();
+
+              // Check if item ID is present in the page content
+              if (!pageContent.includes(itemId)) {
+                core.setFailed(`Item ID "${itemId}" not found in listing page. Please ensure the item ID is included in the listing description.`);
+                return;
+              }
+
+              // Basic check for active listing (page loaded successfully and contains item ID)
+              isActive = true;
+
+              console.log('✓ Listing URL is accessible');
+              console.log(`✓ Item ID "${itemId}" found in listing`);
+
+              core.setOutput('isValid', 'true');
+              core.setOutput('isActive', isActive.toString());
+
+            } catch (error) {
+              core.setFailed(`Failed to fetch listing: ${error.message}`);
+              return;
+            }
+
+      - name: Update item JSON with listing URL
+        if: steps.validate.outputs.isValid == 'true'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ steps.generate-token.outputs.token }}
+          script: |
+            const fs = require('fs');
+            const itemId = '${{ steps.extract-info.outputs.itemId }}';
+            const listingUrl = '${{ steps.extract-info.outputs.listingUrl }}';
+            const itemFile = `items/${itemId}.json`;
+
+            // Read the item JSON
+            const itemContent = fs.readFileSync(itemFile, 'utf8');
+            const item = JSON.parse(itemContent);
+
+            // Add listing URL
+            item.listingUrl = listingUrl;
+            item.listedDate = new Date().toISOString();
+            item.status = 'listed';
+
+            // Write back to file
+            fs.writeFileSync(itemFile, JSON.stringify(item, null, 2) + '\n');
+
+            console.log(`Updated ${itemFile} with listing URL`);
+
+      - name: Create PR with listing URL
+        if: steps.validate.outputs.isValid == 'true'
+        id: create-pr
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ steps.generate-token.outputs.token }}
+          commit-message: |
+            Add listing URL for ${{ steps.extract-info.outputs.itemId }}
+
+            - Item ID: ${{ steps.extract-info.outputs.itemId }}
+            - Listing URL: ${{ steps.extract-info.outputs.listingUrl }}
+            - Status: listed
+
+            Closes #${{ github.event.issue.number }}
+          branch: listing-${{ steps.extract-info.outputs.itemId }}
+          delete-branch: true
+          title: "Add listing URL for ${{ steps.extract-info.outputs.itemId }}"
+          body: |
+            ## Listing URL Added / Dodano URL Ogłoszenia
+
+            This PR updates the item with the validated listing URL.
+
+            **Item ID:** `${{ steps.extract-info.outputs.itemId }}`
+            **Listing URL:** ${{ steps.extract-info.outputs.listingUrl }}
+
+            ### Validation Results / Wyniki Walidacji
+            - ✅ Listing URL is accessible / URL ogłoszenia jest dostępny
+            - ✅ Item ID found in listing / ID przedmiotu znaleziono w ogłoszeniu
+            - ✅ Status updated to "listed" / Status zaktualizowany na "listed"
+
+            Closes #${{ github.event.issue.number }}
+          labels: listing-validated
+          assignees: ${{ github.repository_owner }}
+          committer: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
+          author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
+
+      - name: Comment on issue - Success
+        if: steps.validate.outputs.isValid == 'true' && steps.create-pr.outputs.pull-request-number
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ steps.generate-token.outputs.token }}
+          script: |
+            const prNumber = '${{ steps.create-pr.outputs.pull-request-number }}';
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `✅ **Listing Validated! / Ogłoszenie Zweryfikowane!**
+
+            The listing URL has been validated successfully!
+            Ogłoszenie zostało pomyślnie zweryfikowane!
+
+            ✓ Listing is accessible / Ogłoszenie jest dostępne
+            ✓ Item ID found in listing / ID przedmiotu znaleziono w ogłoszeniu
+
+            A pull request has been created to update the item: #${prNumber}
+
+            Thank you! / Dziękujemy!`
+            });
+
+            // Add verified label
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              labels: ['listing-verified']
+            });
+
+      - name: Comment on issue - Failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ steps.generate-token.outputs.token }}
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `❌ **Listing Validation Failed / Weryfikacja Ogłoszenia Nieudana**
+
+            The listing could not be validated. Please check:
+            Nie udało się zweryfikować ogłoszenia. Sprawdź:
+
+            - The listing URL is correct and accessible / URL ogłoszenia jest poprawny i dostępny
+            - The item ID is included in the listing description / ID przedmiotu jest umieszczony w opisie ogłoszenia
+            - The listing is active / Ogłoszenie jest aktywne
+
+            Please add a comment with the correct listing URL and re-close this issue.
+            Dodaj komentarz z poprawnym URL ogłoszenia i ponownie zamknij to zgłoszenie.`
+            });
+
+            // Reopen the issue
+            await github.rest.issues.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              state: 'open'
+            });

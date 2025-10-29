@@ -74,6 +74,8 @@ To repozytorium wykorzystuje GitHub Actions z aplikacją GitHub do automatyzacji
 - Zobacz `docs/github-app-setup.md` po szczegółowe instrukcje konfiguracji
 
 **Workflow / Przepływ pracy:**
+
+**Phase 1: Item Submission / Faza 1: Zgłoszenie Przedmiotu**
 1. User submits an issue using the template / Użytkownik przesyła zgłoszenie używając szablonu
 2. GitHub Action validates and parses the issue / GitHub Action waliduje i przetwarza zgłoszenie
 3. A new branch is created with the item JSON file / Nowa gałąź jest tworzona z plikiem JSON przedmiotu
@@ -81,10 +83,22 @@ To repozytorium wykorzystuje GitHub Actions z aplikacją GitHub do automatyzacji
 5. Maintainer reviews and merges the PR / Opiekun sprawdza i zatwierdza PR
 6. Item becomes available in the repository / Przedmiot staje się dostępny w repozytorium
 
+**Phase 2: Marketplace Listing / Faza 2: Ogłoszenie na Platformie**
+7. GitHub Action creates a "listing-needed" issue / GitHub Action tworzy zgłoszenie "listing-needed"
+8. Owner creates marketplace listing (OLX, Allegro, etc.) / Właściciel tworzy ogłoszenie na platformie
+9. Owner must include the item ID in the listing description / Właściciel musi umieścić ID przedmiotu w opisie
+10. Owner closes the issue with the listing URL / Właściciel zamyka zgłoszenie z URL ogłoszenia
+11. GitHub Action validates the listing and updates the item / GitHub Action weryfikuje ogłoszenie i aktualizuje przedmiot
+
+**See `docs/listing-workflow.md` for detailed information about the listing process.**
+**Zobacz `docs/listing-workflow.md` po szczegółowe informacje o procesie tworzenia ogłoszeń.**
+
 **Labels / Etykiety:**
-- `new-item` - Triggers the automation / Uruchamia automatyzację
+- `new-item` - Triggers item creation automation / Uruchamia automatyzację tworzenia przedmiotu
 - `pending-review` - Awaiting review / Oczekuje na sprawdzenie
 - `processed` - Automation completed successfully / Automatyzacja zakończona pomyślnie
+- `listing-needed` - Item needs marketplace listing / Przedmiot wymaga ogłoszenia na platformie
+- `listing-verified` - Listing URL has been validated / URL ogłoszenia został zweryfikowany
 
 ## Contributing / Współtworzenie
 

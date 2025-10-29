@@ -1,0 +1,140 @@
+name: Create Listing Issue
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+
+jobs:
+  create-listing-issue:
+    if: github.event.pull_request.merged == true && contains(github.event.pull_request.labels.*.name, 'new-item')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Generate GitHub App Token
+        id: generate-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ vars.GH_APP_AUTOMATION_APP_ID }}
+          private-key: ${{ secrets.GH_APP_AUTOMATION_APP_PRIVATE_KEY }}
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ steps.generate-token.outputs.token }}
+          ref: main
+
+      - name: Extract item details from PR
+        id: extract-item
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ steps.generate-token.outputs.token }}
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+
+            // Get the files changed in the PR
+            const { data: files } = await github.rest.pulls.listFiles({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_request_number: context.payload.pull_request.number
+            });
+
+            // Find the item JSON file
+            const itemFile = files.find(f =>
+              f.filename.startsWith('items/') &&
+              f.filename.endsWith('.json') &&
+              f.status === 'added'
+            );
+
+            if (!itemFile) {
+              console.log('No new item file found in PR');
+              return null;
+            }
+
+            console.log(`Found item file: ${itemFile.filename}`);
+
+            // Read the item JSON
+            const itemContent = fs.readFileSync(itemFile.filename, 'utf8');
+            const item = JSON.parse(itemContent);
+
+            core.setOutput('itemId', item.id);
+            core.setOutput('titleEn', item.title.en);
+            core.setOutput('titlePl', item.title.pl);
+            core.setOutput('descriptionEn', item.description.en);
+            core.setOutput('descriptionPl', item.description.pl);
+            core.setOutput('filename', itemFile.filename);
+
+            return item;
+
+      - name: Create listing issue
+        if: steps.extract-item.outputs.itemId
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ steps.generate-token.outputs.token }}
+          script: |
+            const itemId = '${{ steps.extract-item.outputs.itemId }}';
+            const titleEn = '${{ steps.extract-item.outputs.titleEn }}';
+            const titlePl = '${{ steps.extract-item.outputs.titlePl }}';
+            const descriptionEn = '${{ steps.extract-item.outputs.descriptionEn }}';
+            const descriptionPl = '${{ steps.extract-item.outputs.descriptionPl }}';
+
+            const issue = await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `Create listing for: ${titleEn}`,
+              labels: ['listing-needed'],
+              body: `## Create Listing / Utwórz Ogłoszenie
+
+            Item has been added to the repository. Please create a listing on your preferred marketplace.
+
+            Przedmiot został dodany do repozytorium. Proszę utworzyć ogłoszenie na preferowanej platformie sprzedaży.
+
+            ### Item Details / Szczegóły Przedmiotu
+
+            **Item ID / ID Przedmiotu:** \`${itemId}\`
+            **Title (EN):** ${titleEn}
+            **Title (PL):** ${titlePl}
+
+            **Description (EN):**
+            ${descriptionEn}
+
+            **Description (PL):**
+            ${descriptionPl}
+
+            ### Instructions / Instrukcje
+
+            1. Create a listing on your marketplace (OLX, Allegro, Facebook, etc.)
+            2. **IMPORTANT:** Include the item ID \`${itemId}\` in the listing description
+            3. Once the listing is live, close this issue with a comment containing the listing URL
+            4. The GitHub Action will automatically verify the listing
+
+            ---
+
+            1. Utwórz ogłoszenie na platformie sprzedażowej (OLX, Allegro, Facebook, itp.)
+            2. **WAŻNE:** Umieść ID przedmiotu \`${itemId}\` w opisie ogłoszenia
+            3. Po opublikowaniu ogłoszenia, zamknij to zgłoszenie komentarzem zawierającym URL ogłoszenia
+            4. GitHub Action automatycznie zweryfikuje ogłoszenie
+
+            ### Supported Marketplaces / Obsługiwane Platformy
+
+            - OLX.pl
+            - Allegro.pl
+            - Facebook Marketplace
+            - Other / Inne
+
+            ### Comment Format / Format Komentarza
+
+            When closing this issue, use this format:
+            \`\`\`
+            Listing URL: https://example.com/listing/12345
+            \`\`\`
+
+            Zamykając to zgłoszenie, użyj tego formatu:
+            \`\`\`
+            Listing URL: https://example.com/listing/12345
+            \`\`\`
+            `
+            });
+
+            console.log(`Created listing issue #${issue.data.number}`);
