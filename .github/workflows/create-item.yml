@@ -48,15 +48,15 @@ jobs:
             // Extract all fields
             const itemId = extractField(issueBody, 'Item ID');
             const titleEn = extractField(issueBody, 'Item Title \\(English\\)');
-            const titlePl = extractField(issueBody, 'Item Title \\(Polish / Polski\\)');
+            const titlePl = extractField(issueBody, 'Item Title \\(Polish\\)');
             const descriptionEn = extractField(issueBody, 'Description \\(English\\)');
-            const descriptionPl = extractField(issueBody, 'Description \\(Polish / Polski\\)');
+            const descriptionPl = extractField(issueBody, 'Description \\(Polish\\)');
             const price = parseFloat(extractField(issueBody, 'Price'));
             const currency = extractField(issueBody, 'Currency');
             const condition = extractField(issueBody, 'Condition');
             const category = extractField(issueBody, 'Category');
             const location = extractField(issueBody, 'Location');
-            const imagesText = extractField(issueBody, 'Image URLs');
+            const imagesText = extractField(issueBody, 'Images');
             const tagsText = extractField(issueBody, 'Tags');
 
             // Validate required fields
@@ -209,7 +209,7 @@ jobs:
           delete-branch: true
           title: "Add item: ${{ steps.create-json.outputs.titleEn }}"
           body: |
-            ## New Item Submission / Nowy Przedmiot
+            ## New Item Submission
 
             This PR adds a new item from issue #${{ github.event.issue.number }}
 
@@ -218,15 +218,15 @@ jobs:
             **Title (PL):** ${{ steps.create-json.outputs.titlePl }}
             **Images Downloaded:** ${{ steps.create-json.outputs.imageCount }}
 
-            ### Changes / Zmiany
+            ### Changes
             - Added `items/${{ steps.create-json.outputs.itemId }}.json`
             - Downloaded ${{ steps.create-json.outputs.imageCount }} image(s) to `images/` directory
 
-            ### Review Checklist / Lista Kontrolna
-            - [ ] Item information is accurate / Informacje o przedmiocie są dokładne
-            - [ ] Both English and Polish translations are correct / Tłumaczenia angielskie i polskie są poprawne
-            - [ ] Price and currency are correct / Cena i waluta są poprawne
-            - [ ] Images are properly referenced / Zdjęcia są prawidłowo odniesione
+            ### Review Checklist
+            - [ ] Item information is accurate
+            - [ ] Both English and Polish translations are correct
+            - [ ] Price and currency are correct
+            - [ ] Images are properly referenced
 
             Closes #${{ github.event.issue.number }}
           labels: new-item
@@ -247,18 +247,16 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.issue.number,
-              body: `✅ **Pull Request Created! / Utworzono Pull Request!**
+              body: `✅ **Pull Request Created!**
 
             A pull request has been automatically created for your item submission.
-            Pull request został automatycznie utworzony dla Twojego zgłoszenia.
 
             🔗 **PR:** #${prNumber}
             🔗 **URL:** ${prUrl}
 
             The item will be added to the repository once the PR is reviewed and merged.
-            Przedmiot zostanie dodany do repozytorium po sprawdzeniu i zatwierdzeniu PR.
 
-            Thank you for your submission! / Dziękujemy za zgłoszenie!`
+            Thank you for your submission!`
             });
 
       - name: Add processed label
@@ -285,15 +283,14 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.issue.number,
-              body: `❌ **Error / Błąd**
+              body: `❌ **Error**
 
             There was an error processing this item. Please check that:
-            Wystąpił błąd podczas przetwarzania tego przedmiotu. Sprawdź, czy:
 
-            - All required fields are filled out correctly / Wszystkie wymagane pola są wypełnione poprawnie
-            - The Item ID is unique / ID przedmiotu jest unikalne
-            - Price is a valid number / Cena jest prawidłową liczbą
-            - All fields contain valid data / Wszystkie pola zawierają prawidłowe dane
+            - All required fields are filled out correctly
+            - The Item ID is unique
+            - Price is a valid number
+            - All fields contain valid data
 
-            Please edit the issue and try again. / Edytuj zgłoszenie i spróbuj ponownie.`
+            Please edit the issue and try again.`
             });
