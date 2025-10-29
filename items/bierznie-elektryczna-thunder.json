@@ -12,7 +12,7 @@
   "currency": "PLN",
   "condition": "like-new",
   "category": "fitness",
-  "status": "available",
+  "status": "listed",
   "images": [
     "images/bierznie-elektryczna-thunder-1.jpg",
     "images/bierznie-elektryczna-thunder-2.jpg",
@@ -22,5 +22,7 @@
   "location": "Warszawa / Odbior Osobisty",
   "tags": [
     "fitness"
-  ]
+  ],
+  "listingUrl": "https://www.olx.pl/d/1035268705/?bs=olx_pro_listing",
+  "listedDate": "2025-10-29T12:04:39.532Z"
 }
