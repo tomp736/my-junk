@@ -12,7 +12,7 @@
   "currency": "PLN",
   "condition": "like-new",
   "category": "electronics, computer-peripherals",
-  "status": "available",
+  "status": "listed",
   "images": [
     "images/klawiatura-unicomp-model-m-1.jpg",
     "images/klawiatura-unicomp-model-m-2.jpg"
@@ -26,5 +26,7 @@
     "mechanical keyboard",
     "USB",
     "IBM"
-  ]
+  ],
+  "listingUrl": "https://www.olx.pl/d/1035315234/?bs=olx_pro_listing&my_ads=1",
+  "listedDate": "2025-10-29T15:05:14.000Z"
 }
