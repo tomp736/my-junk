@@ -82,16 +82,44 @@ jobs:
         id: parse-result
         if: steps.extract-item.outcome == 'success'
         run: |
+          # Read the JSON result from the previous step into a shell variable
           RESULT='${{ steps.extract-item.outputs.result }}'
-          echo "result=$RESULT" >> $GITHUB_OUTPUT
-          FOUND=$(echo $RESULT | jq -r '.found')
+
+          # Print raw result to the job log for debugging (do NOT write this to $GITHUB_OUTPUT since it may contain newlines)
+          echo "Raw extract-item result:" >&2
+          printf '%s\n' "$RESULT" >&2
+
+          # Extract the 'found' flag
+          FOUND=$(echo "$RESULT" | jq -r '.found')
           echo "found=$FOUND" >> $GITHUB_OUTPUT
+
           if [ "$FOUND" = "true" ]; then
-            echo "itemId=$(echo $RESULT | jq -r '.itemId')" >> $GITHUB_OUTPUT
-            echo "titleEn=$(echo $RESULT | jq -r '.titleEn')" >> $GITHUB_OUTPUT
-            echo "titlePl=$(echo $RESULT | jq -r '.titlePl')" >> $GITHUB_OUTPUT
-            echo "descriptionEn=$(echo $RESULT | jq -r '.descriptionEn')" >> $GITHUB_OUTPUT
-            echo "descriptionPl=$(echo $RESULT | jq -r '.descriptionPl')" >> $GITHUB_OUTPUT
+            # Safely extract each field (they may contain newlines)
+            ITEM_ID=$(echo "$RESULT" | jq -r '.itemId')
+            TITLE_EN=$(echo "$RESULT" | jq -r '.titleEn')
+            TITLE_PL=$(echo "$RESULT" | jq -r '.titlePl')
+            DESCRIPTION_EN=$(echo "$RESULT" | jq -r '.descriptionEn')
+            DESCRIPTION_PL=$(echo "$RESULT" | jq -r '.descriptionPl')
+
+            # Write single-line value
+            echo "itemId=$ITEM_ID" >> $GITHUB_OUTPUT
+
+            # Write multi-line values using the multiline output syntax
+            echo "titleEn<<EOF" >> $GITHUB_OUTPUT
+            printf '%s\n' "$TITLE_EN" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+
+            echo "titlePl<<EOF" >> $GITHUB_OUTPUT
+            printf '%s\n' "$TITLE_PL" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+
+            echo "descriptionEn<<EOF" >> $GITHUB_OUTPUT
+            printf '%s\n' "$DESCRIPTION_EN" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+
+            echo "descriptionPl<<EOF" >> $GITHUB_OUTPUT
+            printf '%s\n' "$DESCRIPTION_PL" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
           fi
 
       - name: Create listing issue
