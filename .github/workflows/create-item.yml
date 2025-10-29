@@ -129,58 +129,33 @@ jobs:
               titlePl: titlePl
             };
 
-      - name: Create branch and commit
-        run: |
-          BRANCH_NAME="item-${{ steps.create-json.outputs.itemId }}-issue-${{ github.event.issue.number }}"
-
-          git config --global user.name 'github-actions[bot]'
-          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-
-          # Create and checkout new branch
-          git checkout -b "$BRANCH_NAME"
-
-          # Add and commit the item file
-          git add items/
-          git commit -m "Add item: ${{ steps.create-json.outputs.titleEn }}
-
-          - Item ID: ${{ steps.create-json.outputs.itemId }}
-          - English: ${{ steps.create-json.outputs.titleEn }}
-          - Polish: ${{ steps.create-json.outputs.titlePl }}
-
-          Closes #${{ github.event.issue.number }}"
-
-          # Push to remote
-          git push origin "$BRANCH_NAME"
-
-          echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
-
       - name: Create Pull Request
         id: create-pr
-        uses: actions/github-script@v7
+        uses: peter-evans/create-pull-request@v6
         with:
-          script: |
-            const branchName = process.env.BRANCH_NAME;
-            const itemId = '${{ steps.create-json.outputs.itemId }}';
-            const titleEn = '${{ steps.create-json.outputs.titleEn }}';
-            const titlePl = '${{ steps.create-json.outputs.titlePl }}';
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: |
+            Add item: ${{ steps.create-json.outputs.titleEn }}
 
-            // Create pull request
-            const pr = await github.rest.pulls.create({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              title: `Add item: ${titleEn}`,
-              head: branchName,
-              base: 'main',
-              body: `## New Item Submission / Nowy Przedmiot
+            - Item ID: ${{ steps.create-json.outputs.itemId }}
+            - English: ${{ steps.create-json.outputs.titleEn }}
+            - Polish: ${{ steps.create-json.outputs.titlePl }}
+
+            Closes #${{ github.event.issue.number }}
+          branch: item-${{ steps.create-json.outputs.itemId }}-issue-${{ github.event.issue.number }}
+          delete-branch: true
+          title: "Add item: ${{ steps.create-json.outputs.titleEn }}"
+          body: |
+            ## New Item Submission / Nowy Przedmiot
 
             This PR adds a new item from issue #${{ github.event.issue.number }}
 
-            **Item ID:** \`${itemId}\`
-            **Title (EN):** ${titleEn}
-            **Title (PL):** ${titlePl}
+            **Item ID:** `${{ steps.create-json.outputs.itemId }}`
+            **Title (EN):** ${{ steps.create-json.outputs.titleEn }}
+            **Title (PL):** ${{ steps.create-json.outputs.titlePl }}
 
             ### Changes / Zmiany
-            - Added \`items/${itemId}.json\`
+            - Added `items/${{ steps.create-json.outputs.itemId }}.json`
 
             ### Review Checklist / Lista Kontrolna
             - [ ] Item information is accurate / Informacje o przedmiocie są dokładne
@@ -188,21 +163,19 @@ jobs:
             - [ ] Price and currency are correct / Cena i waluta są poprawne
             - [ ] Images are properly referenced / Zdjęcia są prawidłowo odniesione
 
-            Closes #${{ github.event.issue.number }}`
-            });
-
-            console.log(`Created PR #${pr.data.number}`);
-            core.setOutput('pr-number', pr.data.number);
-            core.setOutput('pr-url', pr.data.html_url);
-
-            return pr.data;
+            Closes #${{ github.event.issue.number }}
+          labels: new-item
+          assignees: ${{ github.repository_owner }}
+          committer: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
+          author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
 
       - name: Comment on issue
+        if: steps.create-pr.outputs.pull-request-number
         uses: actions/github-script@v7
         with:
           script: |
-            const prNumber = '${{ steps.create-pr.outputs.pr-number }}';
-            const prUrl = '${{ steps.create-pr.outputs.pr-url }}';
+            const prNumber = '${{ steps.create-pr.outputs.pull-request-number }}';
+            const prUrl = '${{ steps.create-pr.outputs.pull-request-url }}';
 
             await github.rest.issues.createComment({
               owner: context.repo.owner,
@@ -214,6 +187,7 @@ jobs:
             Pull request został automatycznie utworzony dla Twojego zgłoszenia.
 
             🔗 **PR:** #${prNumber}
+            🔗 **URL:** ${prUrl}
 
             The item will be added to the repository once the PR is reviewed and merged.
             Przedmiot zostanie dodany do repozytorium po sprawdzeniu i zatwierdzeniu PR.
@@ -222,6 +196,7 @@ jobs:
             });
 
       - name: Add processed label
+        if: steps.create-pr.outputs.pull-request-number
         uses: actions/github-script@v7
         with:
           script: |
