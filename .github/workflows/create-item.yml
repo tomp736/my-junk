@@ -6,7 +6,7 @@ on:
 
 jobs:
   create-item-pr:
-    if: contains(github.event.issue.labels.*.name, 'new-item')
+    if: contains(toJSON(github.event.issue.labels.*.name), 'new-item')
     runs-on: ubuntu-latest
     permissions:
       contents: write
