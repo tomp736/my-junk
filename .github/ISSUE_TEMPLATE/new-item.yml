@@ -117,11 +117,18 @@ body:
   - type: textarea
     id: images
     attributes:
-      label: Image URLs
-      description: List image URLs or attach images (one per line). Images can be uploaded directly to this issue.
+      label: Images / Zdjęcia
+      description: |
+        Upload images by dragging & dropping them here, OR paste image URLs (one per line).
+        Images will be automatically downloaded and added to the repository.
+
+        Prześlij zdjęcia przeciągając i upuszczając je tutaj, LUB wklej URL-e zdjęć (po jednym w linii).
+        Zdjęcia zostaną automatycznie pobrane i dodane do repozytorium.
       placeholder: |
         https://example.com/image1.jpg
         https://example.com/image2.jpg
+
+        Or drag and drop images here / Lub przeciągnij i upuść zdjęcia tutaj
 
   - type: input
     id: tags

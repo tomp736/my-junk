@@ -64,20 +64,76 @@ jobs:
               throw new Error('Missing required fields');
             }
 
-            // Process images
-            const images = imagesText
-              .split('\n')
-              .map(line => line.trim())
-              .filter(line => line && (line.startsWith('http') || line.startsWith('images/')))
-              .map(url => {
-                // If it's a GitHub uploaded image, keep it as is
-                // Otherwise, suggest moving to images/ folder
-                if (url.startsWith('http') && !url.includes('github.com')) {
-                  const filename = url.split('/').pop() || 'image.jpg';
-                  return `images/${filename}`;
+            // Extract image URLs from issue body
+            const imageUrls = [];
+
+            // Get URLs from the Image URLs field
+            if (imagesText) {
+              const urlsFromField = imagesText
+                .split('\n')
+                .map(line => line.trim())
+                .filter(line => line && line.startsWith('http'));
+              imageUrls.push(...urlsFromField);
+            }
+
+            // Also check for images embedded in the issue body (GitHub uploads)
+            const embeddedImages = issueBody.match(/!\[.*?\]\((https?:\/\/[^\)]+)\)/g);
+            if (embeddedImages) {
+              embeddedImages.forEach(md => {
+                const urlMatch = md.match(/\((https?:\/\/[^\)]+)\)/);
+                if (urlMatch && !imageUrls.includes(urlMatch[1])) {
+                  imageUrls.push(urlMatch[1]);
                 }
-                return url;
               });
+            }
+
+            console.log(`Found ${imageUrls.length} image URLs to download`);
+
+            // Download images and save locally
+            const downloadedImages = [];
+            const imagesDir = 'images';
+
+            if (!fs.existsSync(imagesDir)) {
+              fs.mkdirSync(imagesDir, { recursive: true });
+            }
+
+            for (let i = 0; i < imageUrls.length; i++) {
+              const url = imageUrls[i];
+              try {
+                console.log(`Downloading image ${i + 1}/${imageUrls.length}: ${url}`);
+
+                const response = await fetch(url);
+                if (!response.ok) {
+                  console.warn(`Failed to download ${url}: ${response.status}`);
+                  continue;
+                }
+
+                // Get file extension from URL or content-type
+                let ext = 'jpg';
+                const urlExt = url.split('.').pop().split('?')[0].toLowerCase();
+                if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(urlExt)) {
+                  ext = urlExt;
+                } else {
+                  const contentType = response.headers.get('content-type');
+                  if (contentType?.includes('png')) ext = 'png';
+                  else if (contentType?.includes('gif')) ext = 'gif';
+                  else if (contentType?.includes('webp')) ext = 'webp';
+                }
+
+                // Create filename: itemId-index.ext
+                const filename = `${itemId}-${i + 1}.${ext}`;
+                const filepath = `${imagesDir}/${filename}`;
+
+                // Download and save
+                const buffer = await response.arrayBuffer();
+                fs.writeFileSync(filepath, Buffer.from(buffer));
+
+                downloadedImages.push(filepath);
+                console.log(`✓ Saved: ${filepath}`);
+              } catch (error) {
+                console.warn(`Failed to download image ${url}: ${error.message}`);
+              }
+            }
 
             // Process tags
             const tags = tagsText
@@ -101,7 +157,7 @@ jobs:
               condition: condition.toLowerCase(),
               category: category,
               status: "available",
-              images: images.length > 0 ? images : [],
+              images: downloadedImages,
               datePosted: new Date().toISOString(),
               location: location,
               tags: tags
@@ -118,18 +174,21 @@ jobs:
             fs.writeFileSync(filename, JSON.stringify(item, null, 2) + '\n');
 
             console.log(`Created item file: ${filename}`);
+            console.log(`Downloaded ${downloadedImages.length} images`);
 
             // Return item data for use in next steps
             core.setOutput('filename', filename);
             core.setOutput('itemId', itemId);
             core.setOutput('titleEn', titleEn);
             core.setOutput('titlePl', titlePl);
+            core.setOutput('imageCount', downloadedImages.length.toString());
 
             return {
               filename: filename,
               itemId: itemId,
               titleEn: titleEn,
-              titlePl: titlePl
+              titlePl: titlePl,
+              imageCount: downloadedImages.length
             };
 
       - name: Create Pull Request
@@ -143,6 +202,7 @@ jobs:
             - Item ID: ${{ steps.create-json.outputs.itemId }}
             - English: ${{ steps.create-json.outputs.titleEn }}
             - Polish: ${{ steps.create-json.outputs.titlePl }}
+            - Images: ${{ steps.create-json.outputs.imageCount }} downloaded
 
             Closes #${{ github.event.issue.number }}
           branch: item-${{ steps.create-json.outputs.itemId }}-issue-${{ github.event.issue.number }}
@@ -156,9 +216,11 @@ jobs:
             **Item ID:** `${{ steps.create-json.outputs.itemId }}`
             **Title (EN):** ${{ steps.create-json.outputs.titleEn }}
             **Title (PL):** ${{ steps.create-json.outputs.titlePl }}
+            **Images Downloaded:** ${{ steps.create-json.outputs.imageCount }}
 
             ### Changes / Zmiany
             - Added `items/${{ steps.create-json.outputs.itemId }}.json`
+            - Downloaded ${{ steps.create-json.outputs.imageCount }} image(s) to `images/` directory
 
             ### Review Checklist / Lista Kontrolna
             - [ ] Item information is accurate / Informacje o przedmiocie są dokładne

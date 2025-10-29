@@ -77,18 +77,20 @@ To repozytorium wykorzystuje GitHub Actions z aplikacją GitHub do automatyzacji
 
 **Phase 1: Item Submission / Faza 1: Zgłoszenie Przedmiotu**
 1. User submits an issue using the template / Użytkownik przesyła zgłoszenie używając szablonu
-2. GitHub Action validates and parses the issue / GitHub Action waliduje i przetwarza zgłoszenie
-3. A new branch is created with the item JSON file / Nowa gałąź jest tworzona z plikiem JSON przedmiotu
-4. A Pull Request is automatically generated / Pull Request jest automatycznie generowany
-5. Maintainer reviews and merges the PR / Opiekun sprawdza i zatwierdza PR
-6. Item becomes available in the repository / Przedmiot staje się dostępny w repozytorium
+2. User uploads images or provides image URLs / Użytkownik przesyła zdjęcia lub podaje URL-e zdjęć
+3. GitHub Action validates and parses the issue / GitHub Action waliduje i przetwarza zgłoszenie
+4. GitHub Action automatically downloads all images / GitHub Action automatycznie pobiera wszystkie zdjęcia
+5. A new branch is created with the item JSON file and images / Nowa gałąź jest tworzona z plikiem JSON i zdjęciami
+6. A Pull Request is automatically generated / Pull Request jest automatycznie generowany
+7. Maintainer reviews and merges the PR / Opiekun sprawdza i zatwierdza PR
+8. Item becomes available in the repository / Przedmiot staje się dostępny w repozytorium
 
 **Phase 2: Marketplace Listing / Faza 2: Ogłoszenie na Platformie**
-7. GitHub Action creates a "listing-needed" issue / GitHub Action tworzy zgłoszenie "listing-needed"
-8. Owner creates marketplace listing (OLX, Allegro, etc.) / Właściciel tworzy ogłoszenie na platformie
-9. Owner must include the item ID in the listing description / Właściciel musi umieścić ID przedmiotu w opisie
-10. Owner closes the issue with the listing URL / Właściciel zamyka zgłoszenie z URL ogłoszenia
-11. GitHub Action validates the listing and updates the item / GitHub Action weryfikuje ogłoszenie i aktualizuje przedmiot
+9. GitHub Action creates a "listing-needed" issue / GitHub Action tworzy zgłoszenie "listing-needed"
+10. Owner creates marketplace listing (OLX, Allegro, etc.) / Właściciel tworzy ogłoszenie na platformie
+11. Owner must include the item ID in the listing description / Właściciel musi umieścić ID przedmiotu w opisie
+12. Owner closes the issue with the listing URL / Właściciel zamyka zgłoszenie z URL ogłoszenia
+13. GitHub Action validates the listing and updates the item / GitHub Action weryfikuje ogłoszenie i aktualizuje przedmiot
 
 **See `docs/listing-workflow.md` for detailed information about the listing process.**
 **Zobacz `docs/listing-workflow.md` po szczegółowe informacje o procesie tworzenia ogłoszeń.**
