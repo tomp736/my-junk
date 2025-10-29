@@ -63,9 +63,15 @@ Wszystkie przedmioty są domyślnie wyceniane w polskich złotych (PLN), ale inn
 
 ## Automation / Automatyzacja
 
-This repository uses GitHub Actions to automate the item submission process:
+This repository uses GitHub Actions with a GitHub App to automate the item submission process.
 
-To repozytorium wykorzystuje GitHub Actions do automatyzacji procesu zgłaszania przedmiotów:
+To repozytorium wykorzystuje GitHub Actions z aplikacją GitHub do automatyzacji procesu zgłaszania przedmiotów.
+
+**Setup Required / Wymagana Konfiguracja:**
+- A GitHub App must be configured with appropriate permissions
+- See `docs/github-app-setup.md` for detailed setup instructions
+- Aplikacja GitHub musi być skonfigurowana z odpowiednimi uprawnieniami
+- Zobacz `docs/github-app-setup.md` po szczegółowe instrukcje konfiguracji
 
 **Workflow / Przepływ pracy:**
 1. User submits an issue using the template / Użytkownik przesyła zgłoszenie używając szablonu

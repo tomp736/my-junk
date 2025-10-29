@@ -8,16 +8,19 @@ jobs:
   create-item-pr:
     if: contains(toJSON(github.event.issue.labels.*.name), 'new-item')
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      issues: write
-      pull-requests: write
 
     steps:
+      - name: Generate GitHub App Token
+        id: generate-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ vars.GH_APP_AUTOMATION_APP_ID }}
+          private-key: ${{ secrets.GH_APP_AUTOMATION_APP_PRIVATE_KEY }}
+
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ steps.generate-token.outputs.token }}
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -133,7 +136,7 @@ jobs:
         id: create-pr
         uses: peter-evans/create-pull-request@v6
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ steps.generate-token.outputs.token }}
           commit-message: |
             Add item: ${{ steps.create-json.outputs.titleEn }}
 
@@ -173,6 +176,7 @@ jobs:
         if: steps.create-pr.outputs.pull-request-number
         uses: actions/github-script@v7
         with:
+          github-token: ${{ steps.generate-token.outputs.token }}
           script: |
             const prNumber = '${{ steps.create-pr.outputs.pull-request-number }}';
             const prUrl = '${{ steps.create-pr.outputs.pull-request-url }}';
@@ -199,6 +203,7 @@ jobs:
         if: steps.create-pr.outputs.pull-request-number
         uses: actions/github-script@v7
         with:
+          github-token: ${{ steps.generate-token.outputs.token }}
           script: |
             // Add 'processed' label
             await github.rest.issues.addLabels({
@@ -212,6 +217,7 @@ jobs:
         if: failure()
         uses: actions/github-script@v7
         with:
+          github-token: ${{ steps.generate-token.outputs.token }}
           script: |
             await github.rest.issues.createComment({
               owner: context.repo.owner,
