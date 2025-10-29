@@ -1,0 +1,25 @@
+{
+  "id": "haws-air-fryer",
+  "title": {
+    "en": "Emerio AFRY20200 HAWS Smart Air Fryer",
+    "pl": "Frytkownica Beztłuszczowa Emerio AFRY20200 HAWS Smart"
+  },
+  "description": {
+    "en": "Digital air fryer with adjustable temperature control from 80°C to 200°C and timer up to 60 minutes. [ManualsLib](https://www.manualslib.com/manual/2007291/Haws-Afry20200.html) Features preset programs for fries, chicken, shrimp, cake, meat, fish, and steak, plus auto-clean function. [ManualsLib](https://www.manualslib.com/manual/2007291/Haws-Afry20200.html) Oil-free hot air frying technology with removable basket and dishwasher-safe parts for easy cleaning. [Manuals+](https://manuals.plus/emerio/afry20200-haws-smart-fryer-manual)",
+    "pl": "Cyfrowa frytkownica z regulacją temperatury od 80°C do 200°C oraz timerem do 60 minut. [ManualsLib](https://www.manualslib.com/manual/2007291/Haws-Afry20200.html) Posiada programy automatyczne dla frytek, kurczaka, krewetek, ciasta, mięsa, ryb i steków oraz funkcję automatycznego czyszczenia. [ManualsLib](https://www.manualslib.com/manual/2007291/Haws-Afry20200.html) Technologia smażenia gorącym powietrzem bez oleju z wyjmowanym koszem i częściami nadającymi się do zmywarki. [Manuals+](https://manuals.plus/emerio/afry20200-haws-smart-fryer-manual)"
+  },
+  "price": 75,
+  "currency": "PLN",
+  "condition": "good",
+  "category": "kitchen",
+  "status": "available",
+  "images": [
+    "images/haws-air-fryer-1.jpg",
+    "images/haws-air-fryer-2.png"
+  ],
+  "datePosted": "2025-10-29T10:18:55.596Z",
+  "location": "Warszawa",
+  "tags": [
+    "kitchen"
+  ]
+}
