@@ -1,0 +1,18 @@
+{
+  "id": "item-001",
+  "title": "Vintage Desk Lamp",
+  "description": "Beautiful brass desk lamp from the 1960s. Fully functional with new wiring. Perfect for home office or study.",
+  "price": 75.00,
+  "currency": "USD",
+  "condition": "good",
+  "category": "furniture",
+  "status": "available",
+  "images": [
+    "images/desk-lamp-front.jpg",
+    "images/desk-lamp-side.jpg",
+    "images/desk-lamp-detail.jpg"
+  ],
+  "datePosted": "2025-10-29T00:00:00Z",
+  "location": "Local pickup only",
+  "tags": ["vintage", "lighting", "brass", "office", "desk"]
+}

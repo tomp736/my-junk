@@ -1,0 +1,123 @@
+name: Submit New Item for Sale
+description: Submit a new item listing to be added to the repository
+title: "[NEW ITEM]: "
+labels: ["new-item", "pending-review"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for submitting an item for sale! Please fill out the information below.
+
+  - type: input
+    id: item-id
+    attributes:
+      label: Item ID
+      description: A unique identifier for this item (e.g., item-001, laptop-2025-001)
+      placeholder: item-001
+    validations:
+      required: true
+
+  - type: input
+    id: title
+    attributes:
+      label: Item Title
+      description: A short, descriptive title for your item
+      placeholder: Vintage Desk Lamp
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: Detailed description of the item including condition, features, etc.
+      placeholder: Beautiful brass desk lamp from the 1960s. Fully functional with new wiring...
+    validations:
+      required: true
+
+  - type: input
+    id: price
+    attributes:
+      label: Price
+      description: Price for the item (numbers only)
+      placeholder: "75.00"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: currency
+    attributes:
+      label: Currency
+      description: What currency is the price in?
+      options:
+        - USD
+        - EUR
+        - GBP
+        - CAD
+        - AUD
+        - Other
+      default: 0
+    validations:
+      required: true
+
+  - type: dropdown
+    id: condition
+    attributes:
+      label: Condition
+      description: What condition is the item in?
+      options:
+        - new
+        - like-new
+        - good
+        - fair
+        - poor
+      default: 2
+    validations:
+      required: true
+
+  - type: input
+    id: category
+    attributes:
+      label: Category
+      description: What category does this item belong to?
+      placeholder: furniture, electronics, clothing, etc.
+    validations:
+      required: true
+
+  - type: input
+    id: location
+    attributes:
+      label: Location
+      description: Where is the item available? (City, State or shipping details)
+      placeholder: Local pickup only / Ships nationwide
+    validations:
+      required: true
+
+  - type: textarea
+    id: images
+    attributes:
+      label: Image URLs
+      description: List image URLs or attach images (one per line). Images can be uploaded directly to this issue.
+      placeholder: |
+        https://example.com/image1.jpg
+        https://example.com/image2.jpg
+
+  - type: input
+    id: tags
+    attributes:
+      label: Tags
+      description: Comma-separated tags for easier searching
+      placeholder: vintage, lighting, brass, office
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Submission Checklist
+      description: Please confirm the following
+      options:
+        - label: I have provided accurate information about this item
+          required: true
+        - label: I have the right to sell this item
+          required: true
+        - label: The price listed is final and includes any applicable fees
+          required: true

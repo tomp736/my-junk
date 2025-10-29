@@ -1,0 +1,68 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Item Listing",
+  "description": "Schema for an item for sale",
+  "type": "object",
+  "required": ["id", "title", "price", "status"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique identifier for the item"
+    },
+    "title": {
+      "type": "string",
+      "description": "Item title/name"
+    },
+    "description": {
+      "type": "string",
+      "description": "Detailed description of the item"
+    },
+    "price": {
+      "type": "number",
+      "description": "Price in your local currency",
+      "minimum": 0
+    },
+    "currency": {
+      "type": "string",
+      "description": "Currency code (e.g., USD, EUR, GBP)",
+      "default": "USD"
+    },
+    "condition": {
+      "type": "string",
+      "enum": ["new", "like-new", "good", "fair", "poor"],
+      "description": "Condition of the item"
+    },
+    "category": {
+      "type": "string",
+      "description": "Item category (e.g., electronics, furniture, clothing)"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["available", "pending", "sold", "removed"],
+      "description": "Current status of the listing"
+    },
+    "images": {
+      "type": "array",
+      "description": "Array of image paths",
+      "items": {
+        "type": "string"
+      }
+    },
+    "datePosted": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Date when the item was listed"
+    },
+    "location": {
+      "type": "string",
+      "description": "Location where item is available"
+    },
+    "tags": {
+      "type": "array",
+      "description": "Tags for easier searching",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}
