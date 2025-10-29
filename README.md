@@ -88,9 +88,10 @@ To repozytorium wykorzystuje GitHub Actions z aplikacją GitHub do automatyzacji
 **Phase 2: Marketplace Listing / Faza 2: Ogłoszenie na Platformie**
 9. GitHub Action creates a "listing-needed" issue / GitHub Action tworzy zgłoszenie "listing-needed"
 10. Owner creates marketplace listing (OLX, Allegro, etc.) / Właściciel tworzy ogłoszenie na platformie
-11. Owner must include the item ID in the listing description / Właściciel musi umieścić ID przedmiotu w opisie
+11. Owner must include marker `#!#item-id#!#` in listing description / Właściciel musi umieścić znacznik `#!#id-przedmiotu#!#` w opisie
 12. Owner closes the issue with the listing URL / Właściciel zamyka zgłoszenie z URL ogłoszenia
-13. GitHub Action validates the listing and updates the item / GitHub Action weryfikuje ogłoszenie i aktualizuje przedmiot
+13. GitHub Action validates the listing (checks for marker) / GitHub Action weryfikuje ogłoszenie (sprawdza znacznik)
+14. GitHub Action updates the item with listing URL / GitHub Action aktualizuje przedmiot z URL ogłoszenia
 
 **See `docs/listing-workflow.md` for detailed information about the listing process.**
 **Zobacz `docs/listing-workflow.md` po szczegółowe informacje o procesie tworzenia ogłoszeń.**

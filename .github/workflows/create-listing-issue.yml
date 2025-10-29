@@ -105,16 +105,20 @@ jobs:
             ### Instructions / Instrukcje
 
             1. Create a listing on your marketplace (OLX, Allegro, Facebook, etc.)
-            2. **IMPORTANT:** Include the item ID \`${itemId}\` in the listing description
+            2. **IMPORTANT:** Include this marker in the listing description: \`#!#${itemId}#!#\`
+               - You can put it anywhere in the description (it can be hidden at the end)
+               - This marker is used to verify the listing
             3. Once the listing is live, close this issue with a comment containing the listing URL
-            4. The GitHub Action will automatically verify the listing
+            4. The GitHub Action will automatically verify the listing by checking for the marker
 
             ---
 
             1. Utwórz ogłoszenie na platformie sprzedażowej (OLX, Allegro, Facebook, itp.)
-            2. **WAŻNE:** Umieść ID przedmiotu \`${itemId}\` w opisie ogłoszenia
+            2. **WAŻNE:** Umieść ten znacznik w opisie ogłoszenia: \`#!#${itemId}#!#\`
+               - Możesz go umieścić w dowolnym miejscu opisu (może być ukryty na końcu)
+               - Ten znacznik służy do weryfikacji ogłoszenia
             3. Po opublikowaniu ogłoszenia, zamknij to zgłoszenie komentarzem zawierającym URL ogłoszenia
-            4. GitHub Action automatycznie zweryfikuje ogłoszenie
+            4. GitHub Action automatycznie zweryfikuje ogłoszenie sprawdzając obecność znacznika
 
             ### Supported Marketplaces / Obsługiwane Platformy
 

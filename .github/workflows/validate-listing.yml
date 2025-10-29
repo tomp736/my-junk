@@ -107,9 +107,10 @@ jobs:
 
               pageContent = await response.text();
 
-              // Check if item ID is present in the page content
-              if (!pageContent.includes(itemId)) {
-                core.setFailed(`Item ID "${itemId}" not found in listing page. Please ensure the item ID is included in the listing description.`);
+              // Check if item ID marker is present in the page content
+              const marker = `#!#${itemId}#!#`;
+              if (!pageContent.includes(marker)) {
+                core.setFailed(`Item ID marker "${marker}" not found in listing page. Please ensure you include "${marker}" in the listing description.`);
                 return;
               }
 
@@ -117,7 +118,7 @@ jobs:
               isActive = true;
 
               console.log('✓ Listing URL is accessible');
-              console.log(`✓ Item ID "${itemId}" found in listing`);
+              console.log(`✓ Item ID marker "${marker}" found in listing`);
 
               core.setOutput('isValid', 'true');
               core.setOutput('isActive', isActive.toString());
