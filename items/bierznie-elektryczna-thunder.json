@@ -5,8 +5,8 @@
     "pl": "Bierznia Elektryczna - Thunder"
   },
   "description": {
-    "en": "Electric Treadmill THUNDER RACE-BLACK \nManufacturer code: RACE-BLACK\nPower: 1500W\nSpeed: 0.8 km/h – 14 km/h\nMaximum user weight: 130 kg\nBelt length: 105 cm\nBelt width: 40.5 cm\nMachine weight: 33.5 kg\nPower supply: 220-240V, 50-60Hz\nMassager: without massager\nIncline adjustment: without incline adjustment\nDevice class: CH",
-    "pl": "Bieżnia elektryczna THUNDER RACE-BLACK\nKod producenta: RACE-BLACK\nMoc: 1500W\nPrędkość: 0,8 km/h – 14 km/h\nMaksymalna waga użytkownika: 130 kg\nDługość pasa: 105 cm\nSzerokość pasa: 40,5 cm\nMasa maszyny: 33,5 kg\nZasilanie: 220-240V, 50-60Hz\nMasażer: bez masażera\nRegulacja wzniosu: bez regulacji wzniosu\nKlasa urządzenia: CH"
+    "en": "Electric Treadmill THUNDER RACE-BLACK \nManufacturer code RACE-BLACK\nPower 1500W\nSpeed 0.8 km/h – 14 km/h\nMaximum user weight 130 kg\nBelt length 105 cm\nBelt width 40.5 cm\nMachine weight 33.5 kg\nPower supply 220-240V, 50-60Hz",
+    "pl": "Bieżnia elektryczna THUNDER RACE-BLACK\nKod producenta RACE-BLACK\nMoc 1500W\nPrędkość 0,8 km/h – 14 km/h\nMaksymalna waga użytkownika 130 kg\nDługość pasa 105 cm\nSzerokość pasa 40,5 cm\nMasa maszyna 33,5 kg\nZasilanie 220-240V, 50-60Hz"
   },
   "price": 900,
   "currency": "PLN",
@@ -18,7 +18,7 @@
     "images/bierznie-elektryczna-thunder-2.jpg",
     "images/bierznie-elektryczna-thunder-3.jpg"
   ],
-  "datePosted": "2025-10-29T11:15:35.454Z",
+  "datePosted": "2025-10-29T11:18:08.467Z",
   "location": "Warszawa / Odbior Osobisty",
   "tags": [
     "fitness"
