@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "Item Listing",
-  "description": "Schema for an item for sale",
+  "description": "Schema for an item for sale with bilingual support (English/Polish)",
   "type": "object",
   "required": ["id", "title", "price", "status"],
   "properties": {
@@ -10,12 +10,34 @@
       "description": "Unique identifier for the item"
     },
     "title": {
-      "type": "string",
-      "description": "Item title/name"
+      "type": "object",
+      "description": "Item title/name in multiple languages",
+      "required": ["en", "pl"],
+      "properties": {
+        "en": {
+          "type": "string",
+          "description": "Title in English"
+        },
+        "pl": {
+          "type": "string",
+          "description": "Title in Polish"
+        }
+      }
     },
     "description": {
-      "type": "string",
-      "description": "Detailed description of the item"
+      "type": "object",
+      "description": "Detailed description of the item in multiple languages",
+      "required": ["en", "pl"],
+      "properties": {
+        "en": {
+          "type": "string",
+          "description": "Description in English"
+        },
+        "pl": {
+          "type": "string",
+          "description": "Description in Polish"
+        }
+      }
     },
     "price": {
       "type": "number",
@@ -24,8 +46,9 @@
     },
     "currency": {
       "type": "string",
-      "description": "Currency code (e.g., USD, EUR, GBP)",
-      "default": "USD"
+      "description": "Currency code (e.g., PLN, EUR, USD)",
+      "default": "PLN",
+      "enum": ["PLN", "EUR", "USD", "GBP", "CAD", "AUD"]
     },
     "condition": {
       "type": "string",
@@ -55,11 +78,11 @@
     },
     "location": {
       "type": "string",
-      "description": "Location where item is available"
+      "description": "Location where item is available (city in Poland or shipping details)"
     },
     "tags": {
       "type": "array",
-      "description": "Tags for easier searching",
+      "description": "Tags for easier searching (can be in English, Polish, or both)",
       "items": {
         "type": "string"
       }

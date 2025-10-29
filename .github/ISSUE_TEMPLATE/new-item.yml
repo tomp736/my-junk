@@ -6,7 +6,9 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thanks for submitting an item for sale! Please fill out the information below.
+        Thanks for submitting an item for sale! Please fill out the information below in both English and Polish.
+
+        Dziękujemy za zgłoszenie przedmiotu na sprzedaż! Proszę wypełnić poniższe informacje w języku angielskim i polskim.
 
   - type: input
     id: item-id
@@ -18,20 +20,38 @@ body:
       required: true
 
   - type: input
-    id: title
+    id: title-en
     attributes:
-      label: Item Title
-      description: A short, descriptive title for your item
+      label: Item Title (English)
+      description: A short, descriptive title for your item in English
       placeholder: Vintage Desk Lamp
     validations:
       required: true
 
-  - type: textarea
-    id: description
+  - type: input
+    id: title-pl
     attributes:
-      label: Description
-      description: Detailed description of the item including condition, features, etc.
+      label: Item Title (Polish / Polski)
+      description: A short, descriptive title for your item in Polish
+      placeholder: Zabytkowa Lampa Biurkowa
+    validations:
+      required: true
+
+  - type: textarea
+    id: description-en
+    attributes:
+      label: Description (English)
+      description: Detailed description of the item in English including condition, features, etc.
       placeholder: Beautiful brass desk lamp from the 1960s. Fully functional with new wiring...
+    validations:
+      required: true
+
+  - type: textarea
+    id: description-pl
+    attributes:
+      label: Description (Polish / Polski)
+      description: Detailed description of the item in Polish including condition, features, etc.
+      placeholder: Piękna mosiężna lampa biurkowa z lat 60-tych. W pełni sprawna z nowym okablowaniem...
     validations:
       required: true
 
@@ -50,8 +70,9 @@ body:
       label: Currency
       description: What currency is the price in?
       options:
-        - USD
+        - PLN
         - EUR
+        - USD
         - GBP
         - CAD
         - AUD
@@ -88,8 +109,8 @@ body:
     id: location
     attributes:
       label: Location
-      description: Where is the item available? (City, State or shipping details)
-      placeholder: Local pickup only / Ships nationwide
+      description: Where is the item available? (City or shipping details)
+      placeholder: Warszawa / Odbiór osobisty / Wysyłka w Polsce
     validations:
       required: true
 

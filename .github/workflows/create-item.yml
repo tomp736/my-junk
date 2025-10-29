@@ -1,0 +1,256 @@
+name: Create Item PR from Issue
+
+on:
+  issues:
+    types: [opened, edited]
+
+jobs:
+  create-item-pr:
+    if: contains(github.event.issue.labels.*.name, 'new-item')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Parse issue and create JSON
+        id: create-json
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+
+            // Parse issue body to extract form data
+            const issueBody = context.payload.issue.body;
+
+            // Function to extract field value from issue body
+            function extractField(body, fieldName) {
+              const regex = new RegExp(`### ${fieldName}\\s*\\n\\s*(.+?)(?=\\n###|\\n\\n###|$)`, 's');
+              const match = body.match(regex);
+              return match ? match[1].trim() : '';
+            }
+
+            // Extract all fields
+            const itemId = extractField(issueBody, 'Item ID');
+            const titleEn = extractField(issueBody, 'Item Title \\(English\\)');
+            const titlePl = extractField(issueBody, 'Item Title \\(Polish / Polski\\)');
+            const descriptionEn = extractField(issueBody, 'Description \\(English\\)');
+            const descriptionPl = extractField(issueBody, 'Description \\(Polish / Polski\\)');
+            const price = parseFloat(extractField(issueBody, 'Price'));
+            const currency = extractField(issueBody, 'Currency');
+            const condition = extractField(issueBody, 'Condition');
+            const category = extractField(issueBody, 'Category');
+            const location = extractField(issueBody, 'Location');
+            const imagesText = extractField(issueBody, 'Image URLs');
+            const tagsText = extractField(issueBody, 'Tags');
+
+            // Validate required fields
+            if (!itemId || !titleEn || !titlePl || !descriptionEn || !descriptionPl || !price || !currency) {
+              throw new Error('Missing required fields');
+            }
+
+            // Process images
+            const images = imagesText
+              .split('\n')
+              .map(line => line.trim())
+              .filter(line => line && (line.startsWith('http') || line.startsWith('images/')))
+              .map(url => {
+                // If it's a GitHub uploaded image, keep it as is
+                // Otherwise, suggest moving to images/ folder
+                if (url.startsWith('http') && !url.includes('github.com')) {
+                  const filename = url.split('/').pop() || 'image.jpg';
+                  return `images/${filename}`;
+                }
+                return url;
+              });
+
+            // Process tags
+            const tags = tagsText
+              .split(',')
+              .map(tag => tag.trim())
+              .filter(tag => tag);
+
+            // Create item object
+            const item = {
+              id: itemId,
+              title: {
+                en: titleEn,
+                pl: titlePl
+              },
+              description: {
+                en: descriptionEn,
+                pl: descriptionPl
+              },
+              price: price,
+              currency: currency,
+              condition: condition.toLowerCase(),
+              category: category,
+              status: "available",
+              images: images.length > 0 ? images : [],
+              datePosted: new Date().toISOString(),
+              location: location,
+              tags: tags
+            };
+
+            // Create items directory if it doesn't exist
+            const itemsDir = 'items';
+            if (!fs.existsSync(itemsDir)) {
+              fs.mkdirSync(itemsDir, { recursive: true });
+            }
+
+            // Write JSON file
+            const filename = `${itemsDir}/${itemId}.json`;
+            fs.writeFileSync(filename, JSON.stringify(item, null, 2) + '\n');
+
+            console.log(`Created item file: ${filename}`);
+
+            // Return item data for use in next steps
+            core.setOutput('filename', filename);
+            core.setOutput('itemId', itemId);
+            core.setOutput('titleEn', titleEn);
+            core.setOutput('titlePl', titlePl);
+
+            return {
+              filename: filename,
+              itemId: itemId,
+              titleEn: titleEn,
+              titlePl: titlePl
+            };
+
+      - name: Create branch and commit
+        run: |
+          BRANCH_NAME="item-${{ steps.create-json.outputs.itemId }}-issue-${{ github.event.issue.number }}"
+
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+
+          # Create and checkout new branch
+          git checkout -b "$BRANCH_NAME"
+
+          # Add and commit the item file
+          git add items/
+          git commit -m "Add item: ${{ steps.create-json.outputs.titleEn }}
+
+          - Item ID: ${{ steps.create-json.outputs.itemId }}
+          - English: ${{ steps.create-json.outputs.titleEn }}
+          - Polish: ${{ steps.create-json.outputs.titlePl }}
+
+          Closes #${{ github.event.issue.number }}"
+
+          # Push to remote
+          git push origin "$BRANCH_NAME"
+
+          echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
+
+      - name: Create Pull Request
+        id: create-pr
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const branchName = process.env.BRANCH_NAME;
+            const itemId = '${{ steps.create-json.outputs.itemId }}';
+            const titleEn = '${{ steps.create-json.outputs.titleEn }}';
+            const titlePl = '${{ steps.create-json.outputs.titlePl }}';
+
+            // Create pull request
+            const pr = await github.rest.pulls.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `Add item: ${titleEn}`,
+              head: branchName,
+              base: 'main',
+              body: `## New Item Submission / Nowy Przedmiot
+
+            This PR adds a new item from issue #${{ github.event.issue.number }}
+
+            **Item ID:** \`${itemId}\`
+            **Title (EN):** ${titleEn}
+            **Title (PL):** ${titlePl}
+
+            ### Changes / Zmiany
+            - Added \`items/${itemId}.json\`
+
+            ### Review Checklist / Lista Kontrolna
+            - [ ] Item information is accurate / Informacje o przedmiocie są dokładne
+            - [ ] Both English and Polish translations are correct / Tłumaczenia angielskie i polskie są poprawne
+            - [ ] Price and currency are correct / Cena i waluta są poprawne
+            - [ ] Images are properly referenced / Zdjęcia są prawidłowo odniesione
+
+            Closes #${{ github.event.issue.number }}`
+            });
+
+            console.log(`Created PR #${pr.data.number}`);
+            core.setOutput('pr-number', pr.data.number);
+            core.setOutput('pr-url', pr.data.html_url);
+
+            return pr.data;
+
+      - name: Comment on issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prNumber = '${{ steps.create-pr.outputs.pr-number }}';
+            const prUrl = '${{ steps.create-pr.outputs.pr-url }}';
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `✅ **Pull Request Created! / Utworzono Pull Request!**
+
+            A pull request has been automatically created for your item submission.
+            Pull request został automatycznie utworzony dla Twojego zgłoszenia.
+
+            🔗 **PR:** #${prNumber}
+
+            The item will be added to the repository once the PR is reviewed and merged.
+            Przedmiot zostanie dodany do repozytorium po sprawdzeniu i zatwierdzeniu PR.
+
+            Thank you for your submission! / Dziękujemy za zgłoszenie!`
+            });
+
+      - name: Add processed label
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // Add 'processed' label
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              labels: ['processed']
+            });
+
+      - name: Handle errors
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `❌ **Error / Błąd**
+
+            There was an error processing this item. Please check that:
+            Wystąpił błąd podczas przetwarzania tego przedmiotu. Sprawdź, czy:
+
+            - All required fields are filled out correctly / Wszystkie wymagane pola są wypełnione poprawnie
+            - The Item ID is unique / ID przedmiotu jest unikalne
+            - Price is a valid number / Cena jest prawidłową liczbą
+            - All fields contain valid data / Wszystkie pola zawierają prawidłowe dane
+
+            Please edit the issue and try again. / Edytuj zgłoszenie i spróbuj ponownie.`
+            });
