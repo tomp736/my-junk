@@ -128,16 +128,18 @@ jobs:
         with:
           github-token: ${{ steps.generate-token.outputs.token }}
           script: |
-            const itemId = '${{ steps.parse-result.outputs.itemId }}';
-            const titleEn = '${{ steps.parse-result.outputs.titleEn }}';
-            const titlePl = '${{ steps.parse-result.outputs.titlePl }}';
-            const descriptionEn = '${{ steps.parse-result.outputs.descriptionEn }}';
-            const descriptionPl = '${{ steps.parse-result.outputs.descriptionPl }}';
+            // Use JavaScript template literals (backticks) for multi-line strings
+            const itemId = `${{ steps.parse-result.outputs.itemId }}`;
+            const titleEn = `${{ steps.parse-result.outputs.titleEn }}`;
+            const titlePl = `${{ steps.parse-result.outputs.titlePl }}`;
+            const descriptionEn = `${{ steps.parse-result.outputs.descriptionEn }}`;
+            const descriptionPl = `${{ steps.parse-result.outputs.descriptionPl }}`;
 
+            // Ensure all inputs are properly escaped for the issue body
             const issue = await github.rest.issues.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              title: `Create listing for: ${titleEn}`,
+              title: `Create listing for: ${titleEn.trim()}`,
               labels: ['listing-needed'],
               body: `## Create Listing / Utwórz Ogłoszenie
 
