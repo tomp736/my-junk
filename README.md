@@ -1,6 +1,6 @@
 # Items for Sale
 
-A bilingual repository for managing and listing items for sale.
+A repository for managing and listing items for sale.
 
 ## Directory Structure
 
@@ -12,7 +12,7 @@ A bilingual repository for managing and listing items for sale.
 
 ## Item Schema
 
-Each item listing should follow the schema defined in `docs/item-schema.json`. All text fields (title, description) must be provided in both English and Polish.
+Each item listing should follow the schema defined in `docs/item-schema.json`.
 
 ## Usage
 
@@ -37,13 +37,13 @@ The item will be added to the repository once the PR is reviewed and merged by a
 ### Method 2: Direct Commit
 
 1. Create a new JSON file in the `items/` directory
-2. Follow the item schema template with bilingual content
+2. Follow the item schema template
 3. Add corresponding images to the `images/` directory
 4. Reference images using relative paths in the item listing
 
 ## Example
 
-See `items/example-item.json` for a sample item listing with bilingual content.
+See `items/example-item.json` for a sample item listing.
 
 ## Currency
 
@@ -88,4 +88,4 @@ See `docs/listing-workflow.md` for detailed information about the listing proces
 
 ## Contributing
 
-To submit a new item, please use the GitHub issue template. This ensures all required information is provided in both languages and maintains consistency across listings.
+To submit a new item, please use the GitHub issue template. This ensures all required information is provided and maintains consistency across listings.
