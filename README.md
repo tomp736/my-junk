@@ -12,17 +12,66 @@ A repository for managing and listing items for sale.
 
 ## Item Schema
 
-Each item listing should follow the schema defined in `docs/item-schema.json`.
+Each item listing should follow the schema defined in `docs/item-schema.json`. All text fields (title, description) must be provided in both English and Polish.
+
+## Event Flow Diagram
+
+```mermaid
+flowchart TD
+    Start([User Creates Issue]) --> A[Submit New Item for Sale]
+    A -->|Issue Created| B[GitHub Action: create-item.yml]
+    B --> C{Parse Issue Data}
+    C --> D[Download Images]
+    D --> E[Create Item JSON]
+    E --> F[Create Branch & PR]
+    F --> G[Comment on Issue with PR Link]
+
+    G --> H{Maintainer Reviews PR}
+    H -->|Merge| I[Item Added to Repository]
+    H -->|Request Changes| J[Update Issue]
+    J --> H
+
+    I --> K[GitHub Action: create-listing-issue.yml]
+    K --> L[Create listing-needed Issue]
+
+    L --> M[Owner Creates Marketplace Listing]
+    M --> N[Include #!#item-id#!# marker]
+    N --> O[Add Comment: Listing URL]
+
+    O --> P[GitHub Action: validate-listing.yml]
+    P --> Q{Validate Listing}
+    Q -->|Valid| R[Add listing-verified Label]
+    Q -->|Invalid| S[Comment Error on Issue]
+    S --> O
+
+    R --> T[Create Validation PR]
+    T --> U{Maintainer Merges PR}
+    U -->|Merge| V[Update Item with Listing URL]
+
+    V --> W[GitHub Action: close-listing-issue.yml]
+    W --> X[Close listing-needed Issue]
+    X --> End([Complete])
+
+    style Start fill:#90EE90
+    style End fill:#90EE90
+    style B fill:#87CEEB
+    style K fill:#87CEEB
+    style P fill:#87CEEB
+    style W fill:#87CEEB
+    style Q fill:#FFB6C1
+    style H fill:#FFB6C1
+    style U fill:#FFB6C1
+```
 
 ## Usage
 
 ### Method 1: Submit via GitHub Issues (Recommended)
 
-1. Click on the "Issues" tab in this repository / Kliknij zakładkę "Issues" w tym repozytorium
-2. Click "New Issue" / Kliknij "New Issue"
-3. Select "Submit New Item for Sale" / Wybierz "Submit New Item for Sale"
-4. Fill out the form with your item details in both English and Polish / Wypełnij formularz danymi przedmiotu w języku angielskim i polskim
-5. Submit the issue / Wyślij zgłoszenie
+1. Click on the "Issues" tab in this repository
+2. Click "New Issue"
+3. Select "Submit New Item for Sale"
+4. Fill out the form with your item details in both English and Polish
+5. Submit the issue
 
 **Automated Process:**
 

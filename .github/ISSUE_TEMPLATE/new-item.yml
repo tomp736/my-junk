@@ -8,8 +8,6 @@ body:
       value: |
         Thanks for submitting an item for sale! Please fill out the information below in both English and Polish.
 
-        Dziękujemy za zgłoszenie przedmiotu na sprzedaż! Proszę wypełnić poniższe informacje w języku angielskim i polskim.
-
   - type: input
     id: item-id
     attributes:
@@ -31,7 +29,7 @@ body:
   - type: input
     id: title-pl
     attributes:
-      label: Item Title (Polish / Polski)
+      label: Item Title (Polish)
       description: A short, descriptive title for your item in Polish
       placeholder: Zabytkowa Lampa Biurkowa
     validations:
@@ -49,7 +47,7 @@ body:
   - type: textarea
     id: description-pl
     attributes:
-      label: Description (Polish / Polski)
+      label: Description (Polish)
       description: Detailed description of the item in Polish including condition, features, etc.
       placeholder: Piękna mosiężna lampa biurkowa z lat 60-tych. W pełni sprawna z nowym okablowaniem...
     validations:
@@ -110,25 +108,20 @@ body:
     attributes:
       label: Location
       description: Where is the item available? (City or shipping details)
-      placeholder: Warszawa / Odbiór osobisty / Wysyłka w Polsce
+      placeholder: Warsaw, Poland / Local pickup / Ships within Poland
     validations:
       required: true
 
   - type: textarea
     id: images
     attributes:
-      label: Image URLs
-      description: |
-        Upload images by dragging & dropping them here, OR paste image URLs (one per line).
-        Images will be automatically downloaded and added to the repository.
-
-        Prześlij zdjęcia przeciągając i upuszczając je tutaj, LUB wklej URL-e zdjęć (po jednym w linii).
-        Zdjęcia zostaną automatycznie pobrane i dodane do repozytorium.
+      label: Images
+      description: Upload images by dragging & dropping them here, OR paste image URLs (one per line). Images will be automatically downloaded and added to the repository.
       placeholder: |
         https://example.com/image1.jpg
         https://example.com/image2.jpg
 
-        Or drag and drop images here / Lub przeciągnij i upuść zdjęcia tutaj
+        Or drag and drop images here
 
   - type: input
     id: tags

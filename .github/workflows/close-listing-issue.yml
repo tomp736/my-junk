@@ -85,15 +85,13 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: issueNumber,
-              body: `✅ **Listing Completed! / Ogłoszenie Ukończone!**
+              body: `✅ **Listing Completed!**
 
             The listing has been successfully validated and the item has been updated with the listing URL.
 
-            Ogłoszenie zostało pomyślnie zweryfikowane i przedmiot został zaktualizowany z URL ogłoszenia.
-
             PR #${{ github.event.pull_request.number }} has been merged.
 
-            Thank you! / Dziękujemy!`
+            Thank you!`
             });
 
             // Close the issue

@@ -30,7 +30,7 @@ The repository owner (or assigned person) must:
 Once the listing is live:
 1. Add a comment to the listing issue with the URL
 2. Use the format: `Listing URL: https://...`
-3. The validation will start automatically - no need to close the issue!
+3. The validation will start automatically - no need to close the issue
 
 **Example comment:**
 ```

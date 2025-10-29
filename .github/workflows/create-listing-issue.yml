@@ -153,15 +153,13 @@ jobs:
               repo: context.repo.repo,
               title: `Create listing for: ${titleEn.trim()}`,
               labels: ['listing-needed'],
-              body: `## Create Listing / Utwórz Ogłoszenie
+              body: `## Create Listing
 
             Item has been added to the repository. Please create a listing on your preferred marketplace.
 
-            Przedmiot został dodany do repozytorium. Proszę utworzyć ogłoszenie na preferowanej platformie sprzedaży.
+            ### Item Details
 
-            ### Item Details / Szczegóły Przedmiotu
-
-            **Item ID / ID Przedmiotu:** \`${itemId}\`
+            **Item ID:** \`${itemId}\`
             **Title (EN):** ${titleEn}
             **Title (PL):** ${titlePl}
 
@@ -171,10 +169,10 @@ jobs:
             **Description (PL):**
             ${descriptionPl}
 
-            ### Images / Zdjęcia
+            ### Images
             ${images.map(img => `![Product Image](${img})`).join('\n')}
 
-            ### Instructions / Instrukcje            
+            ### Instructions
             1. Create a listing on your marketplace (OLX, Allegro, Facebook, etc.)
             2. **IMPORTANT:** Include this marker in the listing description: \`#!#${itemId}#!#\`
                - You can put it anywhere in the description (it can be hidden at the end)
@@ -183,37 +181,21 @@ jobs:
             4. The GitHub Action will automatically verify the listing
             5. This issue will remain open until the validation PR is merged
 
-            ---
-
-            1. Utwórz ogłoszenie na platformie sprzedażowej (OLX, Allegro, Facebook, itp.)
-            2. **WAŻNE:** Umieść ten znacznik w opisie ogłoszenia: \`#!#${itemId}#!#\`
-               - Możesz go umieścić w dowolnym miejscu opisu (może być ukryty na końcu)
-               - Ten znacznik służy do weryfikacji ogłoszenia
-            3. Po opublikowaniu ogłoszenia, dodaj komentarz do tego zgłoszenia z URL ogłoszenia
-            4. GitHub Action automatycznie zweryfikuje ogłoszenie
-            5. To zgłoszenie pozostanie otwarte do momentu zatwierdzenia PR walidacyjnego
-
-            ### Supported Marketplaces / Obsługiwane Platformy
+            ### Supported Marketplaces
 
             - OLX.pl
             - Allegro.pl
             - Facebook Marketplace
-            - Other / Inne
+            - Other
 
-            ### Comment Format / Format Komentarza
+            ### Comment Format
 
             Add a comment with this format:
             \`\`\`
             Listing URL: https://example.com/listing/12345
             \`\`\`
 
-            Dodaj komentarz w tym formacie:
-            \`\`\`
-            Listing URL: https://example.com/listing/12345
-            \`\`\`
-
             **Note:** Don't close the issue - it will close automatically after validation!
-            **Uwaga:** Nie zamykaj zgłoszenia - zamknie się automatycznie po walidacji!
             `
             });
 
