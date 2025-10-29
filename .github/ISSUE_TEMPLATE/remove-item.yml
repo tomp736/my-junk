@@ -1,0 +1,51 @@
+name: Remove Item from Sale
+description: Remove an existing item listing from the repository
+title: "[REMOVE ITEM]: "
+labels: ["remove-item", "pending-review"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Submit a request to remove an item from the repository. This will delete the item file and associated images.
+
+  - type: input
+    id: item-id
+    attributes:
+      label: Item ID
+      description: The unique identifier for the item you want to remove (e.g., item-001, tefal-blender-001)
+      placeholder: item-001
+    validations:
+      required: true
+
+  - type: dropdown
+    id: reason
+    attributes:
+      label: Reason for Removal
+      description: Why are you removing this item?
+      options:
+        - Sold
+        - No longer available
+        - Listing error
+        - Duplicate listing
+        - Other
+      default: 0
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional-notes
+    attributes:
+      label: Additional Notes
+      description: Any additional information about this removal (optional)
+      placeholder: Item was sold on OLX...
+
+  - type: checkboxes
+    id: confirmation
+    attributes:
+      label: Confirmation
+      description: Please confirm the following
+      options:
+        - label: I confirm that I want to remove this item and all associated images
+          required: true
+        - label: I understand this action will create a Pull Request that needs to be reviewed
+          required: true

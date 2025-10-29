@@ -1,0 +1,292 @@
+name: Validate Existing Listings
+
+on:
+  schedule:
+    # Run nightly at 2:00 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  validate-listings:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Generate GitHub App Token
+        id: generate-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ vars.GH_APP_AUTOMATION_APP_ID }}
+          private-key: ${{ secrets.GH_APP_AUTOMATION_APP_PRIVATE_KEY }}
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ steps.generate-token.outputs.token }}
+
+      - name: Find and validate all listed items
+        id: validate
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ steps.generate-token.outputs.token }}
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+
+            // Find all item files
+            const itemsDir = 'items';
+            const files = fs.readdirSync(itemsDir).filter(f => f.endsWith('.json') && f !== 'example-item.json');
+
+            console.log(`Found ${files.length} item files to check`);
+
+            const invalidListings = [];
+
+            for (const file of files) {
+              const filePath = path.join(itemsDir, file);
+              const content = fs.readFileSync(filePath, 'utf8');
+              const item = JSON.parse(content);
+
+              // Skip if not listed or no listing URL
+              if (item.status !== 'listed' || !item.listingUrl) {
+                console.log(`Skipping ${item.id}: status=${item.status}, hasUrl=${!!item.listingUrl}`);
+                continue;
+              }
+
+              console.log(`Validating listing for ${item.id}: ${item.listingUrl}`);
+
+              try {
+                // Fetch the listing page
+                const response = await fetch(item.listingUrl, {
+                  headers: {
+                    'User-Agent': 'Mozilla/5.0 (compatible; GitHubActions/1.0)'
+                  },
+                  redirect: 'follow'
+                });
+
+                console.log(`Response status for ${item.id}: ${response.status}`);
+
+                // Check if page exists
+                if (!response.ok) {
+                  console.log(`Listing not found for ${item.id} (status: ${response.status})`);
+                  invalidListings.push({
+                    item: item,
+                    reason: `Listing URL returned status ${response.status}`,
+                    filePath: filePath
+                  });
+                  continue;
+                }
+
+                // Check for marker
+                const pageContent = await response.text();
+                const marker = `#!#${item.id}#!#`;
+
+                if (!pageContent.includes(marker)) {
+                  console.log(`Marker not found for ${item.id}`);
+                  invalidListings.push({
+                    item: item,
+                    reason: 'Item ID marker not found in listing',
+                    filePath: filePath
+                  });
+                  continue;
+                }
+
+                console.log(`✅ Listing valid for ${item.id}`);
+
+              } catch (error) {
+                console.log(`Error validating ${item.id}: ${error.message}`);
+                invalidListings.push({
+                  item: item,
+                  reason: `Error accessing listing: ${error.message}`,
+                  filePath: filePath
+                });
+              }
+            }
+
+            console.log(`\nValidation complete: ${invalidListings.length} invalid listings found`);
+
+            return invalidListings;
+
+      - name: Process invalid listings
+        if: steps.validate.outputs.result != '[]'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ steps.generate-token.outputs.token }}
+          script: |
+            const fs = require('fs');
+            const invalidListings = ${{ steps.validate.outputs.result }};
+
+            console.log(`Processing ${invalidListings.length} invalid listings`);
+
+            for (const listing of invalidListings) {
+              const item = listing.item;
+
+              console.log(`Processing ${item.id}...`);
+
+              // Check if a listing-needed issue already exists
+              const { data: existingIssues } = await github.rest.issues.listForRepo({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                state: 'open',
+                labels: 'listing-needed'
+              });
+
+              const alreadyExists = existingIssues.some(issue =>
+                issue.title.includes(item.title.en) || issue.body.includes(item.id)
+              );
+
+              if (alreadyExists) {
+                console.log(`Issue already exists for ${item.id}, skipping`);
+                continue;
+              }
+
+              // Convert relative image paths to absolute GitHub URLs
+              const images = (item.images || []).map(img =>
+                `https://raw.githubusercontent.com/${context.repo.owner}/${context.repo.repo}/main/${img}`
+              );
+
+              // Create new listing-needed issue
+              const issue = await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: `Re-create listing for: ${item.title.en}`,
+                labels: ['listing-needed', 'listing-expired'],
+                body: `## Re-create Listing
+
+            The previous listing for this item is no longer valid.
+
+            **Reason:** ${listing.reason}
+            **Previous URL:** ${item.listingUrl || 'N/A'}
+
+            ### Item Details
+
+            **Item ID:** \`${item.id}\`
+            **Title (EN):** ${item.title.en}
+            **Title (PL):** ${item.title.pl}
+
+            **Description (EN):**
+            ${item.description.en}
+
+            **Description (PL):**
+            ${item.description.pl}
+
+            ### Images
+            ${images.map(img => `![Product Image](${img})`).join('\n')}
+
+            ### Instructions
+            1. Create a new listing on your marketplace (OLX, Allegro, Facebook, etc.)
+            2. **IMPORTANT:** Include this marker in the listing description: \`#!#${item.id}#!#\`
+               - You can put it anywhere in the description (it can be hidden at the end)
+               - This marker is used to verify the listing
+            3. Once the listing is live, add a comment to this issue with the listing URL
+            4. The GitHub Action will automatically verify the listing
+            5. This issue will remain open until the validation PR is merged
+
+            ### Supported Marketplaces
+
+            - OLX.pl
+            - Allegro.pl
+            - Facebook Marketplace
+            - Other
+
+            ### Comment Format
+
+            Add a comment with this format:
+            \`\`\`
+            Listing URL: https://example.com/listing/12345
+            \`\`\`
+
+            **Note:** Don't close the issue - it will close automatically after validation!
+            `
+              });
+
+              console.log(`Created issue #${issue.data.number} for ${item.id}`);
+
+              // Update item status to available and remove listing URL
+              const itemData = JSON.parse(fs.readFileSync(listing.filePath, 'utf8'));
+              itemData.status = 'available';
+              itemData.listingUrl = undefined;
+              itemData.listedDate = undefined;
+
+              fs.writeFileSync(listing.filePath, JSON.stringify(itemData, null, 2) + '\n');
+
+              console.log(`Updated ${item.id} status to 'available'`);
+            }
+
+            // If we updated any files, check if there are changes
+            const { execSync } = require('child_process');
+            const gitStatus = execSync('git status --porcelain').toString();
+
+            if (gitStatus.trim()) {
+              core.setOutput('has_changes', 'true');
+              core.setOutput('count', invalidListings.length);
+            } else {
+              core.setOutput('has_changes', 'false');
+            }
+
+      - name: Create Pull Request for status updates
+        if: steps.validate.outputs.result != '[]'
+        id: create-pr
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ steps.generate-token.outputs.token }}
+          commit-message: |
+            Update item status for expired listings
+
+            Found ${{ steps.process-invalid.outputs.count }} items with invalid listings.
+            Status changed to 'available' and listing URLs removed.
+
+            Issues created for re-listing.
+          branch: validate-listings-${{ github.run_number }}
+          delete-branch: true
+          title: "Update status for expired listings"
+          body: |
+            ## Update Item Status
+
+            This PR updates the status of items whose marketplace listings are no longer valid.
+
+            **Invalid listings found:** ${{ steps.process-invalid.outputs.count }}
+
+            ### Changes Made
+
+            - Status changed from `listed` to `available`
+            - Listing URL removed
+            - Listed date removed
+
+            ### Issues Created
+
+            New "listing-needed" issues have been created for each invalid listing with the `listing-expired` label.
+
+            ---
+
+            This PR was automatically created by the validate-existing-listings workflow.
+          labels: listing-validation
+
+      - name: Create summary comment
+        if: steps.validate.outputs.result != '[]' && steps.create-pr.outputs.pull-request-number != ''
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ steps.generate-token.outputs.token }}
+          script: |
+            const invalidListings = ${{ steps.validate.outputs.result }};
+
+            const itemList = invalidListings.map(l =>
+              `- **${l.item.title.en}** (${l.item.id}): ${l.reason}`
+            ).join('\n');
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: ${{ steps.create-pr.outputs.pull-request-number }},
+              body: `## Invalid Listings Found
+
+            ${invalidListings.length} items had invalid marketplace listings:
+
+            ${itemList}
+
+            New "listing-needed" issues have been created for each item.`
+            });
+
+      - name: Summary - No invalid listings
+        if: steps.validate.outputs.result == '[]'
+        run: |
+          echo "✅ All listings are valid!"
+          echo "No action needed."
