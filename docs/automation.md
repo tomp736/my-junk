@@ -16,6 +16,7 @@ For detailed setup instructions, see [GitHub App Setup](github-app-setup.md).
 ### Item Creation Workflow
 
 **Workflow:** `.github/workflows/create-item.yml`
+**Name:** "On Issue - Create Item"
 **Trigger:** Issue opened or labeled with `new-item`
 **Purpose:** Automate item submission
 
@@ -37,6 +38,7 @@ For detailed setup instructions, see [GitHub App Setup](github-app-setup.md).
 ### Listing Creation Workflow
 
 **Workflow:** `.github/workflows/create-listing-issue.yml`
+**Name:** "On PR Merge - Create Listing Issue"
 **Trigger:** PR with `new-item` label merged to main
 **Purpose:** Create tracking issue for marketplace listing
 
@@ -51,6 +53,7 @@ For details on the listing process, see [Listing Workflow](listing-workflow.md).
 ### Listing Validation Workflow
 
 **Workflow:** `.github/workflows/validate-listing.yml`
+**Name:** "On Comment - Validate Listing URL"
 **Trigger:** Comment on `listing-needed` issue with "Listing URL:"
 **Purpose:** Validate marketplace listing
 
@@ -64,6 +67,7 @@ For details on the listing process, see [Listing Workflow](listing-workflow.md).
 ### Listing Issue Closure Workflow
 
 **Workflow:** `.github/workflows/close-listing-issue.yml`
+**Name:** "On PR Merge - Close Listing Issue"
 **Trigger:** PR with `listing-validated` label merged to main
 **Purpose:** Close the listing-needed issue
 
@@ -75,6 +79,7 @@ For details on the listing process, see [Listing Workflow](listing-workflow.md).
 ### Validate Existing Listings Workflow
 
 **Workflow:** `.github/workflows/validate-existing-listings.yml`
+**Name:** "Nightly - Validate All Listings"
 **Trigger:** Scheduled (nightly at 2:00 AM UTC) or manual dispatch
 **Purpose:** Periodically validate all marketplace listings
 
@@ -104,6 +109,7 @@ For details on the listing process, see [Listing Workflow](listing-workflow.md).
 ### Item Removal Workflow
 
 **Workflow:** `.github/workflows/remove-item.yml`
+**Name:** "On Issue - Remove Item"
 **Trigger:** Issue opened or labeled with `remove-item`
 **Purpose:** Automate item removal
 
@@ -118,6 +124,7 @@ For details on the listing process, see [Listing Workflow](listing-workflow.md).
 ### Remove Issue Closure Workflow
 
 **Workflow:** `.github/workflows/close-remove-issue.yml`
+**Name:** "On PR Merge - Close Remove Issue"
 **Trigger:** PR with `remove-item` label merged to main
 **Purpose:** Close the remove-item issue
 

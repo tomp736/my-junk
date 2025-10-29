@@ -1,4 +1,4 @@
-name: Create Listing Issue
+name: On PR Merge - Create Listing Issue
 
 on:
   pull_request:

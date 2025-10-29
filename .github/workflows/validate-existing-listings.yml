@@ -1,4 +1,4 @@
-name: Validate Existing Listings
+name: Nightly - Validate All Listings
 
 on:
   schedule:

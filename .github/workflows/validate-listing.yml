@@ -1,4 +1,4 @@
-name: Validate Listing URL
+name: On Comment - Validate Listing URL
 
 on:
   issue_comment:

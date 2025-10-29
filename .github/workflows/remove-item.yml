@@ -1,4 +1,4 @@
-name: Remove Item
+name: On Issue - Remove Item
 
 on:
   issues:

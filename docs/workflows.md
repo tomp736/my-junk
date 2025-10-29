@@ -9,7 +9,7 @@ This diagram shows the complete process from item submission to marketplace list
 ```mermaid
 flowchart TD
     Start([User Creates Issue]) --> A[Submit New Item for Sale]
-    A -->|Issue Created| B[GitHub Action: create-item.yml]
+    A -->|Issue Created| B[On Issue - Create Item]
     B --> C{Parse Issue Data}
     C --> D[Download Images]
     D --> E[Create Item JSON]
@@ -21,14 +21,14 @@ flowchart TD
     H -->|Request Changes| J[Update Issue]
     J --> H
 
-    I --> K[GitHub Action: create-listing-issue.yml]
+    I --> K[On PR Merge - Create Listing Issue]
     K --> L[Create listing-needed Issue]
 
     L --> M[Owner Creates Marketplace Listing]
     M --> N[Include #!#item-id#!# marker]
     N --> O[Add Comment: Listing URL]
 
-    O --> P[GitHub Action: validate-listing.yml]
+    O --> P[On Comment - Validate Listing URL]
     P --> Q{Validate Listing}
     Q -->|Valid| R[Add listing-verified Label]
     Q -->|Invalid| S[Comment Error on Issue]
@@ -38,7 +38,7 @@ flowchart TD
     T --> U{Maintainer Merges PR}
     U -->|Merge| V[Update Item with Listing URL]
 
-    V --> W[GitHub Action: close-listing-issue.yml]
+    V --> W[On PR Merge - Close Listing Issue]
     W --> X[Close listing-needed Issue]
     X --> End([Complete])
 
@@ -60,7 +60,7 @@ This diagram shows the process for removing an item from the repository.
 ```mermaid
 flowchart TD
     Start([User Creates Issue]) --> A[Remove Item from Sale]
-    A -->|Issue Created| B[GitHub Action: remove-item.yml]
+    A -->|Issue Created| B[On Issue - Remove Item]
     B --> C{Validate Item Exists}
     C -->|Not Found| D[Comment Error & Add invalid Label]
     C -->|Found| E[Delete Item & Images]
@@ -72,7 +72,7 @@ flowchart TD
     H -->|Request Changes| J[Update Issue]
     J --> H
 
-    I --> K[GitHub Action: close-remove-issue.yml]
+    I --> K[On PR Merge - Close Remove Issue]
     K --> L[Close remove-item Issue]
     L --> End([Complete])
 
@@ -114,7 +114,7 @@ This diagram shows the automated nightly validation of marketplace listings.
 
 ```mermaid
 flowchart TD
-    Start([Scheduled: Nightly 2AM UTC]) --> A[GitHub Action: validate-existing-listings.yml]
+    Start([Scheduled: Nightly 2AM UTC]) --> A[Nightly - Validate All Listings]
     A --> B[Find All Items with status='listed']
     B --> C{For Each Item}
 

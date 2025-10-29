@@ -1,4 +1,4 @@
-name: Close Listing Issue
+name: On PR Merge - Close Listing Issue
 
 on:
   pull_request:

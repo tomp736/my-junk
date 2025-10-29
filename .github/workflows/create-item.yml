@@ -1,4 +1,4 @@
-name: Create Item PR from Issue
+name: On Issue - Create Item
 
 on:
   issues:

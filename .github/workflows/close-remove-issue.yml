@@ -1,4 +1,4 @@
-name: Close Remove Item Issue
+name: On PR Merge - Close Remove Issue
 
 on:
   pull_request:
