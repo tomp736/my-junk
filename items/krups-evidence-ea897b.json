@@ -12,7 +12,7 @@
   "currency": "PLN",
   "condition": "good",
   "category": "kitchen, appliances",
-  "status": "available",
+  "status": "listed",
   "images": [
     "images/krups-evidence-ea897b-1.png",
     "images/krups-evidence-ea897b-2.png"
@@ -29,5 +29,7 @@
     "ekspres",
     "kawa",
     "EA897B"
-  ]
+  ],
+  "listingUrl": "https://www.olx.pl/d/oferta/ekspres-do-kawy-cisnieniowy-krups-evidence-ecodesign-ea897b-CID99-ID184U9a.html?bs=olx_pro_listing",
+  "listedDate": "2025-11-01T09:03:52.023Z"
 }
